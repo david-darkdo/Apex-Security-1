@@ -25,6 +25,7 @@ import {
 } from "@/lib/collection";
 import { getCanonicalProductSlug } from "@/lib/product-url";
 import { useAppSettings, waLink } from "@/lib/settings";
+import { getProductionOrigin } from "@/lib/origin";
 import { toast } from "sonner";
 import { MessageCircle, Share2, Trash2, Heart, ChevronDown, ChevronUp, Lock, RefreshCw, FileText, Phone, CheckCircle2, AlertCircle, History, Layers } from "lucide-react";
 import { publicImageUrl } from "@/components/ImageUploader";
@@ -289,7 +290,8 @@ function CollectionPage() {
     }
     const refNum = collectionData?.reference_number || generateCollectionReference(id || undefined);
     const versionStr = collectionData?.version && collectionData.version > 1 ? ` (v${collectionData.version})` : "";
-    const singleCollectionUrl = id ? `https://oniks365.ng/collection/${id}` : `https://oniks365.ng/collection`;
+    const origin = getProductionOrigin();
+    const singleCollectionUrl = id ? `${origin}/collection/${id}` : `${origin}/collection`;
     const customerName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email || "Valued Client";
     const projectName = collectionData?.project_name || collectionData?.name || "Showroom Project";
 

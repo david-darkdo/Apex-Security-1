@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { publicImageUrl } from "@/components/ImageUploader";
 import { useAppSettings, waLink } from "@/lib/settings";
+import { getProductionOrigin } from "@/lib/origin";
 import { generateCollectionReference } from "@/lib/collection";
 import { getCustomerIdentityKey, normalizePhone, normalizeEmail } from "@/lib/customer-identity";
 
@@ -272,7 +273,8 @@ function AdminCustomerWorkspacePage() {
   const targetWaNumber = customerPhone || settings?.sales_whatsapp || "";
 
   // Single smart link referenced in WhatsApp quotation response
-  const smartCollectionUrl = `https://oniks365.ng/collection/${id}`;
+  const origin = getProductionOrigin();
+  const smartCollectionUrl = `${origin}/collection/${id}`;
   const refNum = collection?.reference_number || generateCollectionReference(id);
 
   const quotationSummaryText = [

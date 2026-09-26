@@ -1255,6 +1255,45 @@ export type Database = {
           },
         ]
       }
+      feed_hero_media: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          id: string
+          is_active: boolean
+          media_type: string
+          media_url: string
+          order_index: number
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          media_type: string
+          media_url: string
+          order_index?: number
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          media_type?: string
+          media_url?: string
+          order_index?: number
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hero_videos: {
         Row: {
           created_at: string
@@ -1995,6 +2034,36 @@ export type Database = {
           order_index?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      showcase_videos: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          order_index: number
+          title: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          title?: string | null
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }

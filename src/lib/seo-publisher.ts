@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getProductionOrigin } from "@/lib/origin";
 
 /**
  * Triggered automatically upon product creation or updates.
@@ -7,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export async function triggerSitemapUpdate(productId?: string): Promise<void> {
   try {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://oniks365.ng";
+    const origin = getProductionOrigin();
 
     // 1. Touch product updated_at if productId is provided
     if (productId) {

@@ -8,6 +8,7 @@ import { publicImageUrl } from "@/components/ImageUploader";
 import { ArrowRight, Layers } from "lucide-react";
 import { slugify } from "@/lib/slug";
 import { getCanonicalProductUrl } from "@/lib/product-url";
+import { getProductionOrigin } from "@/lib/origin";
 
 type ResolvedHierarchy = {
   type: any;
@@ -218,7 +219,7 @@ const hierarchyQuery = (splat: string, origin: string) =>
 
 export const Route = createFileRoute("/$")({
   loader: async ({ context, params }) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://oniks365.ng';
+    const origin = getProductionOrigin();
     const data = await context.queryClient.ensureQueryData(hierarchyQuery((params as any)._splat ?? "", origin));
     return data;
   },

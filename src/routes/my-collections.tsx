@@ -7,21 +7,21 @@ import {
   fetchProductsByIds,
   duplicateCollection,
   detectProductUnit,
-  generateCollectionReference
+  generateCollectionReference,
 } from "@/lib/collection";
 import { toast } from "sonner";
-import { 
-  FileText, 
-  RefreshCw, 
-  Lock, 
-  Calendar, 
-  Layers, 
-  ArrowLeft, 
-  ChevronDown, 
-  ChevronUp, 
-  Plus, 
+import {
+  FileText,
+  RefreshCw,
+  Lock,
+  Calendar,
+  Layers,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Plus,
   ExternalLink,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 import { publicImageUrl } from "@/components/ImageUploader";
 
@@ -76,7 +76,9 @@ function MyCollectionsHistoryPage() {
 
         const prods = await fetchProductsByIds(Array.from(allProductIds));
         const pMap: Record<string, any> = {};
-        prods.forEach((p) => { pMap[p.id] = p; });
+        prods.forEach((p) => {
+          pMap[p.id] = p;
+        });
 
         const colProdsMap: Record<string, any[]> = {};
         Object.entries(itemsByCol).forEach(([cId, cItems]) => {
@@ -87,7 +89,7 @@ function MyCollectionsHistoryPage() {
             location: ci.installation_location,
             delivery: ci.delivery_preference,
             installation: ci.installation_required,
-            notes: ci.project_notes
+            notes: ci.project_notes,
           }));
         });
 
@@ -113,7 +115,7 @@ function MyCollectionsHistoryPage() {
   const toggleExpand = (colId: string) => {
     setExpandedMap((prev) => ({
       ...prev,
-      [colId]: !prev[colId]
+      [colId]: !prev[colId],
     }));
   };
 
@@ -132,7 +134,11 @@ function MyCollectionsHistoryPage() {
   };
 
   if (loading || busy) {
-    return <div className="container-app py-10 text-sm text-muted-foreground">Loading collection history…</div>;
+    return (
+      <div className="container-app py-10 text-sm text-muted-foreground">
+        Loading collection history…
+      </div>
+    );
   }
 
   if (!user) {
@@ -141,11 +147,16 @@ function MyCollectionsHistoryPage() {
         <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto" />
         <h2 className="font-display text-xl font-semibold">Sign in to view Collection History</h2>
         <p className="text-xs text-muted-foreground">
-          Your submitted project quotation requests are saved to your account history as permanent immutable records.
+          Your submitted project quotation requests are saved to your account history as permanent
+          immutable records.
         </p>
-        <Link 
-          to="/auth" 
-          search={{ redirectTo: highlightedCollectionId ? `/collection/${highlightedCollectionId}` : "/my-collections" }} 
+        <Link
+          to="/auth"
+          search={{
+            redirectTo: highlightedCollectionId
+              ? `/collection/${highlightedCollectionId}`
+              : "/my-collections",
+          }}
           className="inline-block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           Sign In
@@ -160,7 +171,10 @@ function MyCollectionsHistoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Link to="/account" className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1">
+            <Link
+              to="/account"
+              className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1"
+            >
               <ArrowLeft className="h-3.5 w-3.5" /> Back to Account
             </Link>
           </div>
@@ -176,11 +190,11 @@ function MyCollectionsHistoryPage() {
           >
             <Plus className="h-3.5 w-3.5" /> Continue Building Collection
           </Link>
-          <Link 
-            to="/collection" 
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0F1115] border border-[#C5A059]/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#1A1D24] hover:text-[#D4AF37] transition shrink-0 shadow-md"
+          <Link
+            to="/collection"
+            className="inline-flex items-center gap-2 rounded-lg bg-surface-2 border border-border px-4 py-2 text-xs font-bold uppercase tracking-wider text-foreground hover:border-primary/50 hover:text-primary transition shrink-0 shadow-md"
           >
-            <Layers className="h-4 w-4 text-[#D4AF37]" /> Go to Active Workspace
+            <Layers className="h-4 w-4 text-primary" /> Go to Active Workspace
           </Link>
         </div>
       </div>
@@ -190,13 +204,20 @@ function MyCollectionsHistoryPage() {
           <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto" />
           <h3 className="font-semibold text-base">No Submitted Quotation Requests Yet</h3>
           <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            When you submit a project collection via Push to WhatsApp, a permanent immutable record will be stored here.
+            When you submit a project collection via Push to WhatsApp, a permanent immutable record
+            will be stored here.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Link to="/" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
+            >
               <Plus className="h-3.5 w-3.5" /> Start Building on Showroom
             </Link>
-            <Link to="/collection" className="inline-block rounded-md border border-border px-4 py-2 text-xs font-medium hover:bg-muted">
+            <Link
+              to="/collection"
+              className="inline-block rounded-md border border-border px-4 py-2 text-xs font-medium hover:bg-muted"
+            >
               Open Active Workspace
             </Link>
           </div>
@@ -211,15 +232,17 @@ function MyCollectionsHistoryPage() {
             const refNum = col.reference_number || generateCollectionReference(col.id);
 
             let totalVal = 0;
-            prods.forEach((p) => { totalVal += Number(p.price || 0) * Number(p.quantity || 1); });
+            prods.forEach((p) => {
+              totalVal += Number(p.price || 0) * Number(p.quantity || 1);
+            });
 
             return (
-              <div 
-                key={col.id} 
+              <div
+                key={col.id}
                 id={`col-${col.id}`}
                 className={`rounded-xl border overflow-hidden shadow-xs transition ${
-                  isTargeted 
-                    ? "border-primary ring-2 ring-primary/30 bg-primary/5 shadow-md" 
+                  isTargeted
+                    ? "border-primary ring-2 ring-primary/30 bg-primary/5 shadow-md"
                     : "border-border bg-card hover:border-primary/40"
                 }`}
               >
@@ -227,7 +250,9 @@ function MyCollectionsHistoryPage() {
                 <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-display text-base font-semibold">{col.project_name || col.name || "Project Request"}</h3>
+                      <h3 className="font-display text-base font-semibold">
+                        {col.project_name || col.name || "Project Request"}
+                      </h3>
                       <span className="rounded-md bg-surface-2 text-foreground text-xs font-mono font-bold px-2.5 py-0.5 border border-border">
                         {refNum}
                       </span>
@@ -236,7 +261,7 @@ function MyCollectionsHistoryPage() {
                           v{col.version}
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs font-medium px-2.5 py-0.5 border border-amber-500/20">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 text-muted-foreground text-xs font-medium px-2.5 py-0.5 border border-border">
                         <Lock className="h-3 w-3" /> Immutable Record
                       </span>
                       {isTargeted && (
@@ -248,11 +273,25 @@ function MyCollectionsHistoryPage() {
                     <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
-                        Submitted on {new Date(col.submitted_at || col.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        Submitted on{" "}
+                        {new Date(col.submitted_at || col.created_at).toLocaleDateString(
+                          undefined,
+                          { year: "numeric", month: "short", day: "numeric" },
+                        )}
                       </span>
-                      <span>• {prods.length} Product{prods.length === 1 ? "" : "s"}</span>
-                      <span>• Est. Total: <strong className="text-foreground">₦{totalVal.toLocaleString()}</strong></span>
-                      <span>• Status: <strong className="text-foreground uppercase">{col.status || "Submitted"}</strong></span>
+                      <span>
+                        • {prods.length} Product{prods.length === 1 ? "" : "s"}
+                      </span>
+                      <span>
+                        • Est. Total:{" "}
+                        <strong className="text-foreground">₦{totalVal.toLocaleString()}</strong>
+                      </span>
+                      <span>
+                        • Status:{" "}
+                        <strong className="text-foreground uppercase">
+                          {col.status || "Submitted"}
+                        </strong>
+                      </span>
                     </div>
                   </div>
 
@@ -261,15 +300,20 @@ function MyCollectionsHistoryPage() {
                       onClick={() => toggleExpand(col.id)}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg border border-border bg-background hover:bg-surface-2 transition"
                     >
-                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                      <span>{isExpanded ? "Hide Details" : `Inspect Products (${prods.length})`}</span>
+                      {isExpanded ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                      <span>
+                        {isExpanded ? "Hide Details" : `Inspect Products (${prods.length})`}
+                      </span>
                     </button>
 
-                    {/* Create Updated Request (v+1) Action Button */}
                     <button
                       onClick={() => handleCreateUpdatedRequest(col.id)}
                       disabled={isDuplicating}
-                      className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition shadow-sm"
+                      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-canvas hover:bg-brand-orange-hover transition shadow-sm"
                     >
                       <RefreshCw className={`h-3.5 w-3.5 ${isDuplicating ? "animate-spin" : ""}`} />
                       Duplicate to Active
@@ -282,20 +326,53 @@ function MyCollectionsHistoryPage() {
                   <div className="border-t border-border/70 bg-surface-2/30 p-4 sm:p-5 space-y-3">
                     <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
                       <span>Products Breakdown ({prods.length})</span>
-                      <span>Est. Total: <strong className="text-foreground">₦{totalVal.toLocaleString()}</strong></span>
+                      <span>
+                        Est. Total:{" "}
+                        <strong className="text-foreground">₦{totalVal.toLocaleString()}</strong>
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {prods.map((p, idx) => (
-                        <div key={`${col.id}-${p.id || idx}`} className="rounded-lg border border-border bg-background p-3 flex items-start gap-3">
-                          <img src={publicImageUrl(p.generated_studio_image) || publicImageUrl(p.image_url) || ""} alt={p.name} className="h-12 w-12 rounded-md object-cover bg-muted border border-border/40 shrink-0" />
+                        <div
+                          key={`${col.id}-${p.id || idx}`}
+                          className="rounded-lg border border-border bg-background p-3 flex items-start gap-3"
+                        >
+                          <img
+                            src={
+                              publicImageUrl(p.generated_studio_image) ||
+                              publicImageUrl(p.image_url) ||
+                              ""
+                            }
+                            alt={p.name}
+                            className="h-12 w-12 rounded-md object-cover bg-muted border border-border/40 shrink-0"
+                          />
                           <div className="min-w-0 flex-1 text-xs space-y-0.5">
                             <p className="font-semibold text-foreground truncate">{p.name}</p>
-                            <p className="text-muted-foreground">Code: {p.code} — <strong className="text-primary">{p.quantity} {p.unit}</strong></p>
-                            {p.location && <p className="text-muted-foreground/80 truncate">Loc: {p.location}</p>}
-                            {p.delivery && <p className="text-muted-foreground/80 truncate">Delivery: {p.delivery}</p>}
-                            {p.installation && <p className="text-muted-foreground/80 truncate">Install: {p.installation}</p>}
-                            {p.notes && <p className="text-muted-foreground/80 italic truncate">Notes: {p.notes}</p>}
+                            <p className="text-muted-foreground">
+                              Code: {p.code} —{" "}
+                              <strong className="text-primary">
+                                {p.quantity} {p.unit}
+                              </strong>
+                            </p>
+                            {p.location && (
+                              <p className="text-muted-foreground/80 truncate">Loc: {p.location}</p>
+                            )}
+                            {p.delivery && (
+                              <p className="text-muted-foreground/80 truncate">
+                                Delivery: {p.delivery}
+                              </p>
+                            )}
+                            {p.installation && (
+                              <p className="text-muted-foreground/80 truncate">
+                                Install: {p.installation}
+                              </p>
+                            )}
+                            {p.notes && (
+                              <p className="text-muted-foreground/80 italic truncate">
+                                Notes: {p.notes}
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))}

@@ -9,7 +9,10 @@ export const Route = createFileRoute("/collection_/$id")({
   head: () => ({
     meta: [
       { title: "Resolving Project Collection — Apex Security" },
-      { name: "description", content: "Apex Security Secure Project Collection Workspace resolver." },
+      {
+        name: "description",
+        content: "Apex Security Secure Project Collection Workspace resolver.",
+      },
     ],
   }),
   component: SmartCollectionResolver,
@@ -91,10 +94,11 @@ function SmartCollectionResolver() {
   // CASE C Render: Access Restricted State for authenticated non-owners
   return (
     <div className="container-app py-16 max-w-md text-center space-y-4">
-      <ShieldAlert className="h-12 w-12 text-amber-500 mx-auto" />
+      <ShieldAlert className="h-12 w-12 text-primary mx-auto" />
       <h2 className="font-display text-xl font-bold">Access Restricted</h2>
       <p className="text-xs text-muted-foreground leading-relaxed">
-        This project collection belongs to another client workspace. You do not have permission to inspect this request.
+        This project collection belongs to another client workspace. You do not have permission to
+        inspect this request.
       </p>
       <div className="pt-2 flex justify-center gap-3">
         <Link

@@ -51,10 +51,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "Discover — ONIKS365 Kitchen & Bathroom Showroom" },
+      { title: "Discover — Apex Security Digital Showroom" },
       {
         name: "description",
-        content: "Discover luxury sanitary ware, bathroom fittings, kitchen solutions, appliances, and space-saving kitchen systems at ONIKS365.",
+        content: "Discover advanced CCTV systems, biometric smart locks, armored security doors, and modern access control solutions at Apex Security.",
       },
     ],
   }),

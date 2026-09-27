@@ -36,7 +36,7 @@ export const Route = createFileRoute("/collection")({
       autoPush: search.autoPush === "true" || search.autoPush === true ? true : undefined,
     };
   },
-  head: () => ({ meta: [{ title: "Active Project Workspace — ONIKS365" }] }),
+  head: () => ({ meta: [{ title: "Active Project Workspace — Apex Security" }] }),
   component: CollectionPage,
 });
 
@@ -297,7 +297,7 @@ function CollectionPage() {
 
     // 1. Construct WhatsApp message synchronously (< 16ms)
     const messageParts = [
-      "Hello ONIKS365,",
+      "Hello Apex Security,",
       "",
       "I would like a quotation for my project.",
       "",
@@ -637,11 +637,11 @@ function CollectionPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-muted-foreground font-medium mb-1">
-                              Installation Location (e.g. Living Room Floor)
+                              Installation Location (e.g. Main Gate, Office Reception, Perimeter)
                             </label>
                             <input
                               type="text"
-                              placeholder="e.g. Master Bathroom Wall"
+                              placeholder="e.g. Main Entrance Gate / Perimeter"
                               value={req.installation_location || ""}
                               onChange={(e) => handleRequirementChange(product.id, { installation_location: e.target.value })}
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"

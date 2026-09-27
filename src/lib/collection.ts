@@ -35,15 +35,15 @@ export interface CollectionV2 {
   updated_at: string;
 }
 
-const GUEST_KEY = "oniks365.guest_collection_v2";
-const GUEST_REQ_KEY = "oniks365.guest_requirements_v2";
-const USER_REQ_KEY_PREFIX = "oniks365.user_requirements_v2_";
-const CACHED_ITEMS_KEY_PREFIX = "oniks365.cached_user_items_";
+const GUEST_KEY = "apex_security.guest_collection_v2";
+const GUEST_REQ_KEY = "apex_security.guest_requirements_v2";
+const USER_REQ_KEY_PREFIX = "apex_security.user_requirements_v2_";
+const CACHED_ITEMS_KEY_PREFIX = "apex_security.cached_user_items_";
 
 export function generateCollectionReference(colId?: string): string {
   const year = new Date().getFullYear();
   const hex = (colId || Math.random().toString(36)).substring(0, 6).toUpperCase();
-  return `ONK-${year}-${hex}`;
+  return `APX-${year}-${hex}`;
 }
 
 export function detectProductUnit(product: any): string {
@@ -72,8 +72,8 @@ export function detectProductUnit(product: any): string {
 export function getGuestCollection(): GuestItem[] {
   if (typeof window === "undefined") return [];
   try {
-    const rawItems: GuestItem[] = JSON.parse(window.localStorage.getItem(GUEST_KEY) || "[]");
-    const rawReqs: Record<string, ItemRequirements> = JSON.parse(window.localStorage.getItem(GUEST_REQ_KEY) || "{}");
+    const rawItems: GuestItem[] = JSON.parse(window.localStorage.getItem(GUEST_KEY) || window.localStorage.getItem("apex.guest_collection_v2") || "[]");
+    const rawReqs: Record<string, ItemRequirements> = JSON.parse(window.localStorage.getItem(GUEST_REQ_KEY) || window.localStorage.getItem("apex.guest_requirements_v2") || "{}");
     return rawItems.map(item => ({
       ...item,
       ...(rawReqs[item.product_id] || {})

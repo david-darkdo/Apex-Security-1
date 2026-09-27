@@ -63,13 +63,13 @@ export const Route = createFileRoute("/search")({
     meta: [
       {
         title: search?.q
-          ? `"${search.q}" — ONIKS 365 Product Discovery`
-          : "Product Discovery & Search — ONIKS 365 Digital Showroom",
+          ? `"${search.q}" — Apex Security Product Discovery`
+          : "Product Discovery & Search — Apex Security Digital Showroom",
       },
       {
         name: "description",
         content:
-          "Discover luxury kitchen sinks, sanitary ware, smart toilets, and architectural fittings at ONIKS 365.",
+          "Discover advanced CCTV cameras, biometric smart locks, armored security doors, and access control solutions at Apex Security Ltd.",
       },
     ],
   }),
@@ -248,7 +248,7 @@ function SearchPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-[0.2em] text-primary">
-              ONIKS 365 Discovery Engine
+              Apex Security Discovery Engine
             </span>
             {totalCount > 0 && (
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
@@ -260,7 +260,7 @@ function SearchPage() {
             Product Discovery & Catalog Search
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl font-light">
-            Search precision-engineered kitchen sinks, smart sanitary ware, and luxury fittings across Nigeria by code, material, family, or finish.
+            Search precision security electronics, CCTV surveillance, smart locks, and security doors across Nigeria by code, category, model, or specs.
           </p>
         </div>
 
@@ -606,31 +606,31 @@ function SearchPage() {
               <div className="flex justify-center gap-2 flex-wrap">
                 <button
                   type="button"
-                  onClick={() => handleSearchSubmit("kitchen sink")}
+                  onClick={() => handleSearchSubmit("cctv camera")}
                   className="rounded-full bg-card border border-border px-3.5 py-1.5 text-xs font-medium hover:border-primary transition"
                 >
-                  Kitchen Sinks
+                  CCTV Cameras
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSearchSubmit("smart toilet")}
+                  onClick={() => handleSearchSubmit("smart lock")}
                   className="rounded-full bg-card border border-border px-3.5 py-1.5 text-xs font-medium hover:border-primary transition"
                 >
-                  Smart Toilets
+                  Smart Locks
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSearchSubmit("double bowl")}
+                  onClick={() => handleSearchSubmit("security door")}
                   className="rounded-full bg-card border border-border px-3.5 py-1.5 text-xs font-medium hover:border-primary transition"
                 >
-                  Double Bowl Sinks
+                  Security Doors
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSearchSubmit("standing basin")}
+                  onClick={() => handleSearchSubmit("solar camera")}
                   className="rounded-full bg-card border border-border px-3.5 py-1.5 text-xs font-medium hover:border-primary transition"
                 >
-                  Standing Basins
+                  Solar Cameras
                 </button>
               </div>
             </div>
@@ -639,21 +639,21 @@ function SearchPage() {
             <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 max-w-lg mx-auto space-y-2.5">
               <div className="flex items-center justify-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
                 <Sparkles className="h-4 w-4" />
-                <span>Custom Showroom Architectural Sourcing</span>
+                <span>Custom Security & Door Project Sourcing</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Looking for a specific luxury sanitary fitting or architectural dimension not in our digital feed? Speak directly with our Dei-Dei / Abuja showroom procurement engineers.
+                Looking for a specific CCTV configuration, biometric lock, or custom door dimension? Speak directly with our Dei-Dei / Abuja showroom security consultants.
               </p>
               <a
-                href={`https://wa.me/2349030009365?text=${encodeURIComponent(
-                  `Hello ONIKS 365 Showroom, I am searching for: "${search.q || "luxury architectural fittings"}" on your catalog and would like consultation.`
+                href={`https://wa.me/2347063492581?text=${encodeURIComponent(
+                  `Hello Apex Security Showroom, I am searching for: "${search.q || "security and door solutions"}" on your catalog and would like consultation.`
                 )}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-sm"
               >
                 <MessageSquare className="h-4 w-4" />
-                <span>Consult on WhatsApp (+234 903 000 9365)</span>
+                <span>Consult on WhatsApp (+234 706 349 2581)</span>
               </a>
             </div>
           </div>

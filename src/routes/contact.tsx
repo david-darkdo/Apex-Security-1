@@ -2,14 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAppSettings, waLink } from "@/lib/settings";
 import { toast } from "sonner";
-import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone, Building2, ExternalLink } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone, Building2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Us — ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS" },
-      { name: "description", content: "Contact ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS in Abuja and Lagos. Trusted supplier of premium kitchen solutions and luxury bathroom fittings across Nigeria." },
+      { title: "Contact Us — Apex Security Ltd" },
+      {
+        name: "description",
+        content:
+          "Connect with Apex Security Ltd for CCTV cameras, smart locks, security doors and modern door solutions. Our business is located opposite Timber Shed, Dei-Dei, Abuja, Nigeria, and we serve customers nationwide.",
+      },
     ],
   }),
   component: ContactPage,
@@ -19,20 +23,24 @@ function ContactPage() {
   const { data: s } = useAppSettings();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const companyName = (s as any)?.company_name || "Apex Security Ltd";
+  const contactDesc = (s as any)?.contact_description || "Connect with Apex Security Ltd for CCTV cameras, smart locks, security doors and modern door solutions. Our business is located opposite Timber Shed, Dei-Dei, Abuja, Nigeria, and we serve customers nationwide.";
+  const mapUrl = s?.map_url || "https://maps.google.com/?q=Opposite+Timber+Shed+Dei-Dei+Abuja+Nigeria";
+  const address = s?.company_address || "Opposite Timber Shed, Dei-Dei, Abuja, Nigeria";
+  const telPhone = (s as any)?.company_phone || "07063492581";
+  const targetWa = s?.sales_whatsapp || s?.support_whatsapp || "07063492581";
+  const email = s?.company_email || "igwezegift@gmail.com";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
-      const targetWa = s?.sales_whatsapp || "2348035186355";
-      const inquiryText = msg.trim()
-        ? `Hello ONIKS365! My name is ${name}. Inquiring about: ${msg.trim()} (Phone: ${phone}).`
-        : `Hello ONIKS365! My name is ${name}. I would like to inquire about your premium kitchen and bathroom solutions at ${phone}.`;
-      window.open(waLink(targetWa, inquiryText), "_blank", "noopener,noreferrer");
-      toast.success("Opening WhatsApp Sales Consultation…");
-      setName(""); setPhone(""); setMsg("");
+      const msg = `Hello ${companyName}! My name is ${name}. Please contact me regarding CCTV cameras, smart locks, and security doors at ${phone}.`;
+      window.open(waLink(targetWa, msg), "_blank", "noopener,noreferrer");
+      toast.success("Opening WhatsApp Sales Inquiry…");
+      setName(""); setPhone("");
     } catch {
       toast.error("Couldn't open WhatsApp");
     } finally {
@@ -44,143 +52,147 @@ function ContactPage() {
     <AppShell>
       <div className="container-app py-10 space-y-8">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600">Corporate Offices & Showrooms</span>
-          <h1 className="font-display text-3xl font-extrabold text-foreground mt-1">ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS</h1>
-          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-            Oniks365 is a proudly Nigerian, CAC-registered company. We are a trusted supplier of premium modern kitchen solutions and luxury bathroom fittings across Nigeria.
-          </p>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-orange">Corporate Contacts</span>
+          <h1 className="font-display text-3xl font-extrabold text-foreground mt-1">{companyName}</h1>
+          <p className="mt-1 text-xs text-muted-foreground leading-relaxed max-w-2xl">{contactDesc}</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-4">
-            {s?.map_url ? (
-              <a
-                href={s.map_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open location in Google Maps"
-                className="block rounded-xl border border-border bg-white p-5 shadow-xs hover:border-amber-600 hover:shadow-md transition cursor-pointer group"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Abuja Showroom</span>
-                      <div className="font-bold text-sm text-foreground group-hover:text-amber-600 transition">{s.company_address || "69/243 Cornershop International Building Materials Market"}</div>
-                      <p className="text-xs text-muted-foreground mt-0.5">Dei-Dei, Abuja FCT, Nigeria</p>
-                    </div>
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-amber-600 opacity-70 group-hover:opacity-100 transition shrink-0" />
-                </div>
-              </a>
-            ) : (
-              <div className="rounded-xl border border-border bg-white p-5 shadow-xs space-y-3">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Abuja Showroom</span>
-                    <div className="font-bold text-sm text-foreground">{s?.company_address || "69/243 Cornershop International Building Materials Market"}</div>
-                    <p className="text-xs text-muted-foreground mt-0.5">Dei-Dei, Abuja FCT, Nigeria</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {s?.map_url ? (
-              <a
-                href={s.map_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open location in Google Maps"
-                className="block rounded-xl border border-border bg-white p-5 shadow-xs hover:border-amber-600 hover:shadow-md transition cursor-pointer group"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <Building2 className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Lagos Office</span>
-                      <div className="font-bold text-sm text-foreground group-hover:text-amber-600 transition">Odunade Building Materials Market</div>
-                      <p className="text-xs text-muted-foreground mt-0.5">Coker, Orile, Badagry Expressway, Lagos, Nigeria</p>
-                    </div>
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-amber-600 opacity-70 group-hover:opacity-100 transition shrink-0" />
-                </div>
-              </a>
-            ) : (
-              <div className="rounded-xl border border-border bg-white p-5 shadow-xs space-y-3">
-                <div className="flex items-start gap-3">
-                  <Building2 className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Lagos Office</span>
-                    <div className="font-bold text-sm text-foreground">Odunade Building Materials Market</div>
-                    <p className="text-xs text-muted-foreground mt-0.5">Coker, Orile, Badagry Expressway, Lagos, Nigeria</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-xl border border-border bg-white p-5 shadow-xs space-y-3">
+            <a
+              href={mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl border border-border bg-surface p-5 shadow-xs hover:border-brand-orange transition group"
+            >
               <div className="flex items-start gap-3">
-                <Phone className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
+                <MapPin className="h-6 w-6 text-brand-orange shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Nationwide Delivery & Payment</span>
-                  <div className="font-bold text-sm text-foreground">Nationwide delivery across Nigeria</div>
-                  <p className="text-xs text-emerald-700 font-medium mt-0.5">Payment on delivery available in Abuja and Lagos</p>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-orange">Business Address (Click for Map)</span>
+                  <div className="font-bold text-sm text-foreground group-hover:text-brand-orange transition">{address}</div>
+                  <p className="text-xs text-muted-foreground mt-0.5">Dei-Dei Building Materials Market area · Serving Abuja & Nationwide</p>
+                </div>
+              </div>
+            </a>
+
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3">
+              <div className="flex items-start gap-3">
+                <Phone className="h-6 w-6 text-brand-blue shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue">Customer Service Telephone</span>
+                  <div className="font-bold text-sm text-foreground">
+                    <a href={`tel:${telPhone}`} className="hover:text-brand-orange transition">{telPhone}</a>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {s?.company_email && (
-              <a href={`mailto:${s.company_email}`} className="flex items-center gap-3 rounded-xl border border-border bg-white p-5 shadow-xs hover:border-amber-600 transition">
-                <Mail className="h-6 w-6 text-amber-600 shrink-0" />
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3">
+              <div className="flex items-start gap-3">
+                <Phone className="h-6 w-6 text-[#25D366] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Email Address</span>
-                  <div className="font-bold text-sm text-foreground">{s.company_email}</div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#25D366]">Official WhatsApp Channel</span>
+                  <div className="font-bold text-sm text-foreground">
+                    <a href={`https://wa.me/${targetWa.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#25D366] transition">
+                      {targetWa} (Click to Chat)
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {email && (
+              <a href={`mailto:${email}`} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 shadow-xs hover:border-brand-blue transition">
+                <Mail className="h-6 w-6 text-brand-blue shrink-0" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue">Email Address</span>
+                  <div className="font-bold text-sm text-foreground">{email}</div>
                 </div>
               </a>
             )}
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <a
+                href={s?.facebook_url || "https://facebook.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="grid h-10 w-10 place-items-center rounded-full bg-[#1877F2] text-white shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:shadow-lg motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              >
+                <svg className="h-5 w-5 fill-white" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </a>
+              <a
+                href={s?.instagram_url || "https://instagram.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-[#fdf497] via-[#fd5949] to-[#d6249f] text-white shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:shadow-lg motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              >
+                <svg className="h-5 w-5 fill-white" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                </svg>
+              </a>
+              <a
+                href={s?.tiktok_url || "https://tiktok.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="grid h-10 w-10 place-items-center rounded-full bg-black text-white shadow-md ring-1 ring-white/20 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:shadow-lg motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201-1.743 2.895 2.895 0 0 1 2.312-2.834V7.633a6.347 6.347 0 0 0-5.115 6.223A6.34 6.34 0 0 0 10.709 20V9.378a8.16 8.16 0 0 0 4.772 1.524v-3.4a4.847 4.847 0 0 1-1.554-.816z"
+                    fill="#25F4EE"
+                    transform="translate(-0.8, -0.6)"
+                  />
+                  <path
+                    d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201-1.743 2.895 2.895 0 0 1 2.312-2.834V7.633a6.347 6.347 0 0 0-5.115 6.223A6.34 6.34 0 0 0 10.709 20V9.378a8.16 8.16 0 0 0 4.772 1.524v-3.4a4.847 4.847 0 0 1-1.554-.816z"
+                    fill="#FE2C55"
+                    transform="translate(0.8, 0.6)"
+                  />
+                  <path
+                    d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201-1.743 2.895 2.895 0 0 1 2.312-2.834V7.633a6.347 6.347 0 0 0-5.115 6.223A6.34 6.34 0 0 0 10.709 20V9.378a8.16 8.16 0 0 0 4.772 1.524v-3.4a4.847 4.847 0 0 1-1.554-.816z"
+                    fill="#FFFFFF"
+                  />
+                </svg>
+              </a>
+              <a
+                href={(s as any)?.youtube_url || "https://youtube.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="grid h-10 w-10 place-items-center rounded-full bg-[#FF0000] text-white shadow-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:shadow-lg motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              >
+                <svg className="h-5 w-5 fill-white" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
-          <form onSubmit={submit} className="space-y-4 pt-2">
+          <form onSubmit={submit} className="rounded-xl border border-border bg-surface p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <label className="block text-xs font-bold text-[#0F1115] mb-1">Your Full Name</label>
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name"
-                className="w-full rounded-lg border border-[#E5E0D8] bg-[#FAF8F5] px-3.5 py-2 text-xs outline-none focus:border-[#C5A059] focus:bg-white"
-              />
+              <h2 className="font-display text-xl font-bold text-foreground">Direct Sales Inquiry</h2>
+              <p className="mt-1 text-xs text-muted-foreground">Request a call back or security and door solutions consultation via WhatsApp.</p>
+              <div className="mt-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Your Name</label>
+                  <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name / Company" className="w-full rounded-lg border border-border bg-surface-elevated px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-brand-orange focus:bg-surface" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Phone Number</label>
+                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number" className="w-full rounded-lg border border-border bg-surface-elevated px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-brand-orange focus:bg-surface" />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#0F1115] mb-1">Phone Number / WhatsApp</label>
-              <input
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone Number"
-                className="w-full rounded-lg border border-[#E5E0D8] bg-[#FAF8F5] px-3.5 py-2 text-xs outline-none focus:border-[#C5A059] focus:bg-white"
-              />
+            <div className="mt-6">
+              <button disabled={busy} className="w-full rounded-lg bg-brand-orange px-5 py-3 text-sm font-bold text-canvas hover:bg-brand-orange-hover disabled:opacity-60 transition shadow-sm">
+                {busy ? "Sending…" : "Connect With Sales Representative"}
+              </button>
             </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#0F1115] mb-1">Inquiry / Project Details</label>
-              <textarea
-                rows={3}
-                value={msg}
-                onChange={(e) => setMsg(e.target.value)}
-                placeholder="Tell us what product or project you need assistance with…"
-                className="w-full rounded-lg border border-[#E5E0D8] bg-[#FAF8F5] px-3.5 py-2 text-xs outline-none focus:border-[#C5A059] focus:bg-white resize-none"
-              />
-            </div>
-
-            <button
-              disabled={busy}
-              className="w-full rounded-lg bg-[#0F1115] border border-[#C5A059]/40 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#1A1D24] hover:text-[#D4AF37] disabled:opacity-60 transition shadow-sm"
-            >
-              {busy ? "Connecting…" : "Send WhatsApp Consultation Inquiry"}
-            </button>
           </form>
         </div>
       </div>

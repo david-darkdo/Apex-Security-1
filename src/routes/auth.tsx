@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth")({
     };
   },
   head: () => ({
-    meta: [{ title: "Sign in — ONIKS365" }],
+    meta: [{ title: "Sign in — Apex Security" }],
   }),
   component: AuthPage,
 });

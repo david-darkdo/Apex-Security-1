@@ -99,23 +99,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const meta = [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#0B0C0E" },
-      { title: "ONIKS365 — Premium Kitchen Solutions & Luxury Bathroom Fittings" },
+      { name: "theme-color", content: "#080C13" },
+      { title: "Apex Security Ltd — CCTV Cameras, Smart Locks & Security Doors" },
       {
         name: "description",
-        content: "ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS — supplying premium modern kitchen solutions and luxury bathroom fittings across Nigeria.",
+        content: "Apex Security Ltd provides CCTV cameras, solar CCTV systems, smart locks, security doors and modern door solutions in Abuja, Nigeria. Serving residential, commercial and building projects nationwide.",
       },
-      { property: "og:title", content: "ONIKS365 — Premium Kitchen Solutions & Luxury Bathroom Fittings" },
+      { property: "og:title", content: "Apex Security Ltd — Security Electronics & Modern Doors" },
       {
         property: "og:description",
-        content: "Oniks365 is a trusted supplier of premium modern kitchen solutions and luxury bathroom fittings delivering quality, elegance, and functionality across Nigeria.",
+        content: "Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "ONIKS365 — Premium Kitchen Solutions & Luxury Bathroom Fittings" },
-      { name: "twitter:description", content: "Oniks365 is a trusted supplier of premium modern kitchen solutions and luxury bathroom fittings delivering quality, elegance, and functionality across Nigeria." },
-      { property: "og:image", content: "https://oniks365.ng/oniks365-logo.png?v=3" },
-      { name: "twitter:image", content: "https://oniks365.ng/oniks365-logo.png?v=3" },
+      { name: "twitter:title", content: "Apex Security Ltd — CCTV Cameras, Smart Locks & Security Doors" },
+      { name: "twitter:description", content: "Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria." },
+      { property: "og:image", content: "/apex-logo.png" },
+      { name: "twitter:image", content: "/apex-logo.png" },
     ];
 
     if (googleVerify) {
@@ -129,10 +129,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       meta,
       links: [
         { rel: "stylesheet", href: appCss },
-        { rel: "manifest", href: "/manifest.webmanifest?v=3" },
-        { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=3" },
-        { rel: "icon", href: "/favicon.png?v=3", type: "image/png" },
-        { rel: "shortcut icon", href: "/favicon.ico?v=3" },
+        { rel: "manifest", href: "/manifest.webmanifest?v=apex-2026-v1" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=apex-2026-v1" },
+        { rel: "icon", href: "/favicon.png?v=apex-2026-v1", type: "image/png" },
+        { rel: "shortcut icon", href: "/favicon.ico?v=apex-2026-v1" },
       ],
     };
   },
@@ -146,35 +146,33 @@ function RootShell({ children }: { children: ReactNode }) {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ONIKS365",
-    "legalName": "ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS",
-    "url": "https://oniks365.ng",
-    "logo": "https://oniks365.ng/oniks365-logo.png?v=3",
-    "description": "ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS — supplying premium modern kitchen solutions and luxury bathroom fittings across Nigeria.",
-    "address": [
-      {
-        "@type": "PostalAddress",
-        "streetAddress": "69/243 Cornershop International Building Materials Market, Dei-Dei",
-        "addressLocality": "Abuja FCT",
-        "addressCountry": "NG"
-      },
-      {
-        "@type": "PostalAddress",
-        "streetAddress": "Odunade Building Materials Market, Coker, Orile, Badagry Expressway",
-        "addressLocality": "Lagos",
-        "addressCountry": "NG"
-      }
-    ]
+    "name": "Apex Security Ltd",
+    "legalName": "Apex Security Ltd",
+    "url": "https://apex-security-1.vercel.app",
+    "logo": "https://apex-security-1.vercel.app/apex-logo.png",
+    "description": "Apex Security Ltd provides CCTV cameras, solar CCTV systems, smart locks, security doors and modern door solutions in Abuja, Nigeria, and nationwide.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Opposite Timber Shed, Dei-Dei",
+      "addressLocality": "Abuja FCT",
+      "addressCountry": "NG"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+2347063492581",
+      "contactType": "sales & customer support",
+      "availableLanguage": ["English"]
+    }
   };
 
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "ONIKS365 Digital Showroom",
-    "url": "https://oniks365.ng",
+    "name": "Apex Security Digital Showroom",
+    "url": "https://apex-security-1.vercel.app",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://oniks365.ng/search?q={search_term_string}",
+      "target": "https://apex-security-1.vercel.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -282,12 +280,12 @@ function RootAppWrapper() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": (settings as any)?.company_name || "ONIKS365",
-    "url": typeof window !== "undefined" ? window.location.origin : "https://oniks365.ng",
-    "logo": (settings as any)?.company_logo || (typeof window !== "undefined" ? `${window.location.origin}/oniks365-logo.png?v=3` : "https://oniks365.ng/oniks365-logo.png?v=3"),
+    "name": (settings as any)?.company_name || "Apex Security Ltd",
+    "url": typeof window !== "undefined" ? window.location.origin : "https://apex-security-1.vercel.app",
+    "logo": (settings as any)?.company_logo || (typeof window !== "undefined" ? `${window.location.origin}/apex-logo.png` : "https://apex-security-1.vercel.app/apex-logo.png"),
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": settings?.support_whatsapp || "",
+      "telephone": settings?.support_whatsapp || "+2347063492581",
       "contactType": "sales & customer support"
     }
   };
@@ -323,8 +321,8 @@ function RootAppWrapper() {
             `}</style>
             <div className="flex flex-col items-center gap-4 animate-breathing">
               <img
-                src="/oniks365-logo.png?v=3"
-                alt="ONIKS365 Logo"
+                src="/apex-logo.png"
+                alt="Apex Security Logo"
                 className="h-16 w-auto object-contain"
               />
               <p className="font-display text-[9px] tracking-widest text-muted-foreground/80 uppercase">

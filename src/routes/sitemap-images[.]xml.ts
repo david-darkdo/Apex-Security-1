@@ -32,7 +32,7 @@ export const Route = createFileRoute("/sitemap-images.xml")({
           if (products) {
             for (const p of (products as any[])) {
               const productUrl = getCanonicalProductUrl(p, origin);
-              const title = p.name || "ONIKS365 Product";
+              const title = p.name || "Apex Security Product";
               const caption = p.alt_text || p.seo_description || title;
 
               const rawImages = [p.image_url, p.generated_installed_image, p.generated_studio_image].filter(Boolean);

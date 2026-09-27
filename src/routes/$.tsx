@@ -232,17 +232,17 @@ export const Route = createFileRoute("/$")({
     let description = "";
 
     if (family) {
-      title = `${family.name} Collection — Premium ${category.name} | ONIKS365`;
-      description = `Explore the beautiful ${family.name} collection of premium ${category.name} ${type.name} at ONIKS365. View available colors, finishes, and specs.`;
+      title = `${family.name} Collection — Premium ${category.name} | Apex Security`;
+      description = `Explore the ${family.name} collection of premium ${category.name} ${type.name} at Apex Security. View available specs, models, and finishes.`;
     } else if (subcategory) {
-      title = `Luxury ${subcategory.name} ${category.name} ${type.name} | ONIKS365`;
-      description = `Browse our catalogue of premium ${subcategory.name} ${category.name} ${type.name} curated by ONIKS365.`;
+      title = `Security ${subcategory.name} ${category.name} ${type.name} | Apex Security`;
+      description = `Browse our catalog of premium ${subcategory.name} ${category.name} ${type.name} curated by Apex Security.`;
     } else if (category) {
-      title = `Premium ${category.name} ${type.name} | ONIKS365`;
-      description = `Discover high-quality, luxury ${category.name} ${type.name} sanitary ware and kitchen solutions at ONIKS365.`;
+      title = `Premium ${category.name} ${type.name} | Apex Security`;
+      description = `Discover high-performance ${category.name} ${type.name} and security solutions at Apex Security.`;
     } else {
-      title = `${type.name} Catalog | ONIKS365`;
-      description = `Curated luxury ${type.name} collections. Discover premium sanitary ware, bathroom fittings, kitchen solutions, and appliances at ONIKS365.`;
+      title = `${type.name} Catalog | Apex Security`;
+      description = `Curated ${type.name} solutions. Discover CCTV surveillance, smart biometric locks, security doors, and electronic security at Apex Security.`;
     }
 
     const firstImage = loaderData.products[0]?.generated_studio_image || loaderData.products[0]?.image_url || "";
@@ -348,7 +348,7 @@ function HierarchyLandingPage() {
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {family?.custom_ai_prompt_override ||
-              `Browse our catalog of premium ${type.name.toLowerCase()} materials. ONIKS365 curates state of the art finishes for custom builder specifications.`}
+              `Browse our catalog of premium ${type.name.toLowerCase()} solutions. Apex Security curates state-of-the-art security electronics and door systems for residential and commercial projects.`}
           </p>
         </div>
 

@@ -24,7 +24,7 @@ export function ProductCardSkeleton() {
       `}</style>
       <div className="aspect-square bg-muted/15 relative flex items-center justify-center overflow-hidden">
         <div className="animate-card-breathing">
-          <img src="/oniks365-logo.png?v=3" alt="Loading" className="h-9 w-auto object-contain opacity-40 dark:opacity-60" />
+          <img src="/apex-logo.png" alt="Loading" className="h-9 w-auto object-contain opacity-40 dark:opacity-60" />
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-2 p-3">
@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
   const img =
     publicImageUrl(product.generated_studio_image) ||
     publicImageUrl(product.image_url) ||
-    "https://placehold.co/600x600/121316/D4AF37?text=ONIKS365";
+    "https://placehold.co/600x600/080C13/FD7603?text=Apex+Security";
 
   // Determine if product is recently published (newer than 7 days)
   const isNew = useMemo(() => {

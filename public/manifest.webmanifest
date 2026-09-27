@@ -1,15 +1,15 @@
 {
-  "name": "ONIKS365 — Premium Kitchen Solutions & Luxury Bathroom Fittings",
-  "short_name": "ONIKS365",
-  "description": "ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS — supplying premium modern kitchen solutions and luxury bathroom fittings across Nigeria.",
+  "name": "Apex Security Ltd — CCTV Cameras, Smart Locks & Security Doors",
+  "short_name": "Apex Security",
+  "description": "Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0B0C0E",
-  "theme_color": "#0B0C0E",
+  "background_color": "#080C13",
+  "theme_color": "#080C13",
   "icons": [
-    { "src": "/icon-192.png?v=3", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/apple-touch-icon.png?v=3", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512.png?v=3", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icon-192.png?v=apex-2026-v1", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png?v=apex-2026-v1", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-512.png?v=apex-2026-v1", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

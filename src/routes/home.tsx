@@ -24,23 +24,22 @@ import {
   ChevronLeft,
   ChevronRight,
   Tv,
-  Film,
-  ExternalLink
+  Film
 } from "lucide-react";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "ONIKS365 — Premium Sanitary Ware & Modern Kitchen Solutions" },
+      { title: "Apex Security Ltd — CCTV Cameras, Smart Locks & Security Doors" },
       {
         name: "description",
         content:
-          "ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS — supplying premium sanitary ware, luxury bathroom fittings, and modern kitchen solutions across Nigeria.",
+          "Secure your space with modern technology and dependable door solutions. Apex Security Ltd brings CCTV cameras, solar security cameras, smart locks and quality security doors together for homes, businesses and building projects across Abuja and Nigeria.",
       },
-      { property: "og:title", content: "ONIKS365 — Premium Kitchen & Bathroom Solutions" },
+      { property: "og:title", content: "Apex Security Ltd — Security Electronics & Modern Doors" },
       {
         property: "og:description",
-        content: "Discover contemporary bathroom fittings, sanitary ware, kitchen solutions, appliances, and smart storage systems designed to elevate modern spaces.",
+        content: "Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria.",
       },
     ],
   }),
@@ -52,6 +51,9 @@ function HomePage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const companyName = (s as any)?.company_name || "Apex Security Ltd";
+  const homepageDesc = (s as any)?.homepage_description || "Secure your space with modern technology and dependable door solutions. Apex Security Ltd brings CCTV cameras, solar security cameras, smart locks and quality security doors together for homes, businesses and building projects across Abuja and Nigeria.";
 
   // Hero Videos State
   const [heroVideos, setHeroVideos] = useState<any[]>([]);
@@ -104,17 +106,17 @@ function HomePage() {
             {
               id: "sc-1",
               url: "https://assets.mixkit.co/videos/preview/mixkit-interior-of-a-modern-apartment-39907-large.mp4",
-              title: "Luxury Bathroom Fittings & Modern Sanitary Ware"
+              title: "CCTV Surveillance & Solar Camera Systems"
             },
             {
               id: "sc-2",
               url: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-39908-large.mp4",
-              title: "Modern Kitchen Sinks, Built-in Ovens & Appliances"
+              title: "Smart Locks & Digital Access Solutions"
             },
             {
               id: "sc-3",
               url: "https://assets.mixkit.co/videos/preview/mixkit-architectural-model-design-details-39909-large.mp4",
-              title: "Smart Pantry Systems, Plate Racks & Magic Corners"
+              title: "Armored Security & Contemporary Doors"
             }
           ]);
         }
@@ -156,12 +158,12 @@ function HomePage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const targetWa = s?.sales_whatsapp || "2348035186355";
+    const targetWa = s?.sales_whatsapp || s?.support_whatsapp || "07063492581";
     setBusy(true);
     try {
-      const msg = `Hello ONIKS365! My name is ${name}. I would like to inquire about your kitchen and bathroom solutions at ${phone}.`;
+      const msg = `Hello ${companyName}! My name is ${name}. Please contact me regarding CCTV cameras, smart locks, and security doors at ${phone}.`;
       window.open(waLink(targetWa, msg), "_blank", "noopener,noreferrer");
-      toast.success("Opening WhatsApp Sales Consultation…");
+      toast.success("Opening WhatsApp Sales Inquiry…");
       setName("");
       setPhone("");
     } finally {
@@ -171,12 +173,12 @@ function HomePage() {
 
   return (
     <AppShell>
-      {/* Hero Banner */}
+      {/* Hero Architectural Banner */}
       <section
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="relative w-full h-[70vh] min-h-[500px] overflow-hidden bg-slate-950"
+        className="relative w-full h-[70vh] min-h-[500px] overflow-hidden bg-canvas"
       >
         {heroVideos.length > 0 && (
           <div className="absolute inset-0 w-full h-full">
@@ -191,40 +193,37 @@ function HomePage() {
               preload="auto"
             />
             {/* Dark Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/60 to-canvas/20" />
           </div>
         )}
 
         {/* Content Overlays */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-14 text-white">
+        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-14 text-foreground">
           <div className="max-w-3xl space-y-4">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Kitchen & Bathroom Showroom
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-elevated/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] backdrop-blur text-brand-blue">
+              <Sparkles className="h-3.5 w-3.5 text-brand-orange" /> Security & Door Solutions Showroom
             </span>
 
-            <h1 className="font-display text-4xl sm:text-6xl font-extrabold leading-none tracking-tight text-white uppercase">
-              ONIKS365
+            <h1 className="font-display text-4xl sm:text-6xl font-extrabold leading-none tracking-tight text-foreground uppercase">
+              {companyName}
             </h1>
-            <p className="font-display text-lg sm:text-2xl text-amber-500 font-bold">
-              ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS
-            </p>
-            <p className="text-xs sm:text-sm text-gray-200 max-w-xl leading-relaxed">
-              Discover contemporary bathroom fittings, sanitary ware, kitchen solutions, appliances, and smart storage systems designed to elevate modern spaces across Nigeria.
+            <p className="font-display text-sm sm:text-base text-text-secondary max-w-xl leading-relaxed">
+              {homepageDesc}
             </p>
 
             <div className="flex flex-wrap gap-3 pt-3">
               <Link
                 to="/search"
                 search={{ q: "" }}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#0F1115] border border-[#C5A059] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#1A1D24] hover:text-[#D4AF37] transition shadow-lg"
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-orange px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover transition shadow-lg"
               >
-                <Compass className="h-4 w-4 text-[#D4AF37]" /> Explore Digital Showroom <ArrowRight className="h-4 w-4" />
+                <Compass className="h-4 w-4" /> Explore Digital Showroom <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/collection"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 transition"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface-elevated/80 backdrop-blur px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-foreground hover:bg-surface transition"
               >
-                <Bookmark className="h-4 w-4 text-amber-500" /> Project Collections
+                <Bookmark className="h-4 w-4 text-brand-orange" /> Project Collections
               </Link>
             </div>
           </div>
@@ -237,7 +236,7 @@ function HomePage() {
                   key={i}
                   onClick={() => setCurrentVideoIndex(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    currentVideoIndex === i ? "w-8 bg-amber-500" : "w-2 bg-white/40"
+                    currentVideoIndex === i ? "w-8 bg-brand-orange" : "w-2 bg-white/40"
                   }`}
                   aria-label={`Slide ${i + 1}`}
                 />
@@ -248,56 +247,56 @@ function HomePage() {
       </section>
 
       {/* Trust & Company Highlights */}
-      <section className="bg-white border-b border-[#E5E0D8] py-8">
+      <section className="bg-surface border-b border-border py-8">
         <div className="container-app grid gap-6 sm:grid-cols-3">
-          <div className="flex items-start gap-4 p-4 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5]">
-            <Building2 className="h-8 w-8 text-[#ea580c] shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-surface-elevated">
+            <Building2 className="h-8 w-8 text-brand-blue shrink-0" />
             <div>
-              <h4 className="font-bold text-sm text-[#0F1115]">Premium Kitchen & Bathroom Solutions</h4>
-              <p className="text-xs text-muted-foreground mt-1">Direct supplier of luxury sanitary ware, bathroom fittings, appliances, and space-saving kitchen storage.</p>
+              <h4 className="font-bold text-sm text-foreground">Security Electronics & CCTV</h4>
+              <p className="text-xs text-muted-foreground mt-1">Solar & wired CCTV cameras, high-definition surveillance, and intelligent property monitoring.</p>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-4 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5]">
-            <ShieldCheck className="h-8 w-8 text-[#D4AF37] shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-surface-elevated">
+            <ShieldCheck className="h-8 w-8 text-brand-orange shrink-0" />
             <div>
-              <h4 className="font-bold text-sm text-[#0F1115]">CAC Registered Company</h4>
-              <p className="text-xs text-muted-foreground mt-1">Officially registered Nigerian entity (ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS) serving Abuja, Lagos & nationwide.</p>
+              <h4 className="font-bold text-sm text-foreground">Smart Locks & Security Doors</h4>
+              <p className="text-xs text-muted-foreground mt-1">Biometric digital door locks, armored security doors, flush doors, pivot doors & toilet doors.</p>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-4 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5]">
-            <MessageCircle className="h-8 w-8 text-[#ea580c] shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-xl border border-border bg-surface-elevated">
+            <MessageCircle className="h-8 w-8 text-brand-blue shrink-0" />
             <div>
-              <h4 className="font-bold text-sm text-[#0F1115]">Instant WhatsApp Consultation</h4>
-              <p className="text-xs text-muted-foreground mt-1">Curate your project lookbook and receive formatted WhatsApp quotes instantly from our team.</p>
+              <h4 className="font-bold text-sm text-foreground">Nationwide Service & Quotes</h4>
+              <p className="text-xs text-muted-foreground mt-1">Dei-Dei Abuja showroom presence serving residential, commercial & building projects nationwide.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Showcase Video Slider (Continuous Showcase) */}
+      {/* APEX SECURITY Showcase Video Slider (Continuous Showcase) */}
       {showcaseVideos.length > 0 && (
-        <section className="bg-[#0B0C0E] text-white py-12 border-y border-[#C5A059]/30 shadow-2xl relative overflow-hidden">
+        <section className="bg-canvas text-foreground py-12 border-y border-border shadow-2xl relative overflow-hidden">
           {/* Ambient Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-blue-soft rounded-full blur-3xl pointer-events-none" />
 
           <div className="container-app space-y-6 relative z-10">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
               <div>
-                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#D4AF37]">
-                  <Film className="h-3.5 w-3.5 text-[#D4AF37]" /> Digital Showcase Reel
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.25em] text-brand-orange">
+                  <Film className="h-3.5 w-3.5 text-brand-orange" /> Security & Door Solutions Showcase
                 </div>
-                <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-tight mt-1">
-                  ONIKS365 Video Showcase
+                <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground uppercase tracking-tight mt-1">
+                  APEX SECURITY Video Showcase
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 max-w-md">
-                Watch our product videos, luxury WCs, smart showers, kitchen sinks, built-in ovens, and modern storage systems.
+              <p className="text-xs text-muted-foreground max-w-md">
+                Watch our latest product videos, showroom installations, imported security doors, and premium craftsmanship.
               </p>
             </div>
 
             {/* Video Player Box */}
-            <div className="relative w-full aspect-video max-h-[550px] rounded-2xl overflow-hidden bg-slate-900 border border-white/15 shadow-2xl group">
+            <div className="relative w-full aspect-video max-h-[550px] rounded-2xl overflow-hidden bg-surface border border-border shadow-2xl group">
               <video
                 key={showcaseVideos[currentShowcaseIndex]?.id || currentShowcaseIndex}
                 autoPlay={showcasePlaying}
@@ -310,15 +309,15 @@ function HomePage() {
               />
 
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/30 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-canvas/90 via-transparent to-canvas/30 pointer-events-none" />
 
               {/* Top Title Overlay Badge */}
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2.5 z-10">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1115] border border-[#C5A059]/40 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#D4AF37] shadow-md">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-orange px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-canvas shadow-md">
                   <Tv className="h-3 w-3" /> Video #{currentShowcaseIndex + 1} of {showcaseVideos.length}
                 </span>
                 {showcaseVideos[currentShowcaseIndex]?.title && (
-                  <span className="hidden sm:inline-block rounded-full bg-slate-900/80 border border-white/20 px-3.5 py-1 text-xs font-bold text-slate-200 backdrop-blur">
+                  <span className="hidden sm:inline-block rounded-full bg-surface-elevated/80 border border-border px-3.5 py-1 text-xs font-bold text-foreground backdrop-blur">
                     {showcaseVideos[currentShowcaseIndex].title}
                   </span>
                 )}
@@ -327,11 +326,11 @@ function HomePage() {
               {/* Center Play/Pause Button */}
               <button
                 onClick={() => setShowcasePlaying((p) => !p)}
-                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-2xs"
+                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 backdrop-blur-2xs"
                 aria-label={showcasePlaying ? "Pause Video" : "Play Video"}
               >
-                <div className="rounded-full bg-slate-900/90 border border-white/30 p-4 text-white shadow-xl hover:scale-110 transition-transform">
-                  {showcasePlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 text-amber-500 fill-amber-500 ml-0.5" />}
+                <div className="rounded-full bg-surface-elevated/90 border border-border p-4 text-foreground shadow-xl hover:scale-110 transition-transform">
+                  {showcasePlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 text-brand-orange fill-brand-orange ml-0.5" />}
                 </div>
               </button>
 
@@ -340,9 +339,9 @@ function HomePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowcaseMuted((m) => !m)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/80 border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20 transition backdrop-blur"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-surface-elevated/80 border border-border px-3 py-1.5 text-xs font-bold text-foreground hover:bg-surface transition backdrop-blur"
                   >
-                    {showcaseMuted ? <VolumeX className="h-4 w-4 text-rose-500" /> : <Volume2 className="h-4 w-4 text-amber-500" />}
+                    {showcaseMuted ? <VolumeX className="h-4 w-4 text-brand-orange" /> : <Volume2 className="h-4 w-4 text-brand-blue" />}
                     <span className="hidden sm:inline text-[10px]">{showcaseMuted ? "Unmute" : "Mute"}</span>
                   </button>
                 </div>
@@ -354,7 +353,7 @@ function HomePage() {
                       key={idx}
                       onClick={() => setCurrentShowcaseIndex(idx)}
                       className={`h-2 rounded-full transition-all duration-300 ${
-                        currentShowcaseIndex === idx ? "w-6 bg-amber-500" : "w-2 bg-white/40 hover:bg-white/70"
+                        currentShowcaseIndex === idx ? "w-6 bg-brand-orange" : "w-2 bg-white/40 hover:bg-white/70"
                       }`}
                       aria-label={`Go to video ${idx + 1}`}
                     />
@@ -369,7 +368,7 @@ function HomePage() {
                         (prev) => (prev - 1 + showcaseVideos.length) % showcaseVideos.length
                       )
                     }
-                    className="p-2 rounded-full bg-slate-900/80 border border-white/20 text-white hover:bg-white/20 transition backdrop-blur"
+                    className="p-2 rounded-full bg-surface-elevated/80 border border-border text-foreground hover:bg-surface transition backdrop-blur"
                     aria-label="Previous Video"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -378,7 +377,7 @@ function HomePage() {
                     onClick={() =>
                       setCurrentShowcaseIndex((prev) => (prev + 1) % showcaseVideos.length)
                     }
-                    className="p-2 rounded-full bg-slate-900/80 border border-white/20 text-white hover:bg-white/20 transition backdrop-blur"
+                    className="p-2 rounded-full bg-surface-elevated/80 border border-border text-foreground hover:bg-surface transition backdrop-blur"
                     aria-label="Next Video"
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -393,134 +392,112 @@ function HomePage() {
       {/* Company / Contact Section */}
       <section className="container-app mt-12">
         <div className="text-center max-w-xl mx-auto mb-8 space-y-2">
-          <h2 className="font-display text-xs uppercase tracking-[0.2em] font-bold text-[#ea580c]">
-            Get In Touch With ONIKS365
+          <h2 className="font-display text-xs uppercase tracking-[0.2em] font-bold text-brand-orange">
+            Get In Touch With {companyName}
           </h2>
-          <h3 className="font-display text-3xl font-extrabold text-[#0F1115]">Visit Our Showrooms & Offices</h3>
+          <h3 className="font-display text-3xl font-extrabold text-foreground">Visit Our Showroom & Offices</h3>
           <p className="text-xs text-muted-foreground">
-            Contact our kitchen and bathroom solution specialists for product inquiries, project orders, or site delivery quotes.
+            Contact our security and door specialists for systems consultation, product specs, or nationwide site delivery.
           </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2 pb-4">
           <div className="space-y-4">
-            {s?.map_url ? (
-              <a
-                href={s.map_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open location in Google Maps"
-                className="block rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs hover:border-[#ea580c] hover:shadow-md transition cursor-pointer group"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-6 w-6 text-[#ea580c] shrink-0" />
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Abuja Showroom</span>
-                      <div className="font-bold text-sm text-[#0F1115] group-hover:text-[#ea580c] transition">{s.company_address || "69/243 Cornershop International Building Materials Market"}</div>
-                      <p className="text-xs text-muted-foreground">Dei-Dei, Abuja FCT, Nigeria</p>
-                    </div>
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-[#ea580c] opacity-70 group-hover:opacity-100 transition shrink-0" />
-                </div>
-              </a>
-            ) : (
-              <div className="rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs space-y-3">
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-6 w-6 text-[#ea580c] shrink-0" />
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Abuja Showroom</span>
-                    <div className="font-bold text-sm text-[#0F1115]">{s?.company_address || "69/243 Cornershop International Building Materials Market"}</div>
-                    <p className="text-xs text-muted-foreground">Dei-Dei, Abuja FCT, Nigeria</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {s?.map_url ? (
-              <a
-                href={s.map_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open location in Google Maps"
-                className="block rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs hover:border-[#ea580c] hover:shadow-md transition cursor-pointer group"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-6 w-6 text-[#ea580c] shrink-0" />
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Lagos Office</span>
-                      <div className="font-bold text-sm text-[#0F1115] group-hover:text-[#ea580c] transition">Odunade Building Materials Market</div>
-                      <p className="text-xs text-muted-foreground">Coker, Orile, Badagry Expressway, Lagos, Nigeria</p>
-                    </div>
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-[#ea580c] opacity-70 group-hover:opacity-100 transition shrink-0" />
-                </div>
-              </a>
-            ) : (
-              <div className="rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs space-y-3">
-                <div className="flex items-center gap-3">
-                  <Building2 className="h-6 w-6 text-[#ea580c] shrink-0" />
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Lagos Office</span>
-                    <div className="font-bold text-sm text-[#0F1115]">Odunade Building Materials Market</div>
-                    <p className="text-xs text-muted-foreground">Coker, Orile, Badagry Expressway, Lagos, Nigeria</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs space-y-3">
+            <a
+              href={s?.map_url || "https://maps.google.com/?q=Opposite+Timber+Shed+Dei-Dei+Abuja+Nigeria"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3 hover:border-brand-orange transition group"
+            >
               <div className="flex items-center gap-3">
-                <Phone className="h-6 w-6 text-[#ea580c] shrink-0" />
+                <MapPin className="h-6 w-6 text-brand-orange shrink-0 group-hover:scale-110 transition-transform" />
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Telephone Lines</span>
-                  <div className="font-bold text-sm text-[#0F1115]">Nationwide Delivery | Payment on Delivery in Abuja & Lagos</div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-orange">Business Address (Click for Map)</span>
+                  <div className="font-bold text-sm text-foreground group-hover:text-brand-orange transition">
+                    {s?.company_address || "Opposite Timber Shed, Dei-Dei, Abuja, Nigeria"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Dei-Dei Building Materials Market area · Serving Abuja & Nationwide</p>
+                </div>
+              </div>
+            </a>
+
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3">
+              <div className="flex items-center gap-3">
+                <Phone className="h-6 w-6 text-brand-blue shrink-0" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue">Customer Service Line</span>
+                  <div className="font-bold text-sm text-foreground">
+                    <a href={`tel:${(s as any)?.company_phone || "07063492581"}`} className="hover:text-brand-orange transition">
+                      {(s as any)?.company_phone || "07063492581"}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3">
+              <div className="flex items-center gap-3">
+                <Phone className="h-6 w-6 text-[#25D366] shrink-0" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#25D366]">WhatsApp Consultation</span>
+                  <div className="font-bold text-sm text-foreground">
+                    <a
+                      href={`https://wa.me/${(s?.sales_whatsapp || s?.support_whatsapp || "07063492581").replace(/[^\d]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#25D366] transition"
+                    >
+                      {s?.sales_whatsapp || s?.support_whatsapp || "07063492581"} (Click to Chat)
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
 
             {s?.company_email && (
-              <div className="rounded-xl border border-[#E5E0D8] bg-white p-5 shadow-xs space-y-3">
+              <a
+                href={`mailto:${s.company_email}`}
+                className="block rounded-xl border border-border bg-surface p-5 shadow-xs space-y-3 hover:border-brand-blue transition group"
+              >
                 <div className="flex items-center gap-3">
-                  <Mail className="h-6 w-6 text-[#ea580c] shrink-0" />
+                  <Mail className="h-6 w-6 text-brand-blue shrink-0" />
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c]">Email Inquiry</span>
-                    <div className="font-bold text-sm text-[#0F1115]">{s.company_email}</div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue">Email Inquiry</span>
+                    <div className="font-bold text-sm text-foreground group-hover:text-brand-orange transition">{s.company_email}</div>
                   </div>
                 </div>
-              </div>
+              </a>
             )}
           </div>
 
           <form
             onSubmit={submit}
-            className="rounded-xl border border-[#E5E0D8] bg-white p-6 shadow-sm flex flex-col justify-between"
+            className="rounded-xl border border-border bg-surface p-6 shadow-sm flex flex-col justify-between"
           >
             <div>
-              <h3 className="font-display text-xl font-bold text-[#0F1115]">Direct Consultation Inquiry</h3>
+              <h3 className="font-display text-xl font-bold text-foreground">Request Security & Door Consultation</h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Enter your details to initiate a WhatsApp consultation with the ONIKS365 sales team.
+                Enter your details to initiate a direct WhatsApp quote or product consultation with {companyName}.
               </p>
               <div className="mt-5 space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#0F1115] mb-1">Your Full Name</label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Your Full Name</label>
                   <input
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name / Company"
-                    className="w-full rounded-lg border border-[#E5E0D8] bg-[#FAF8F5] px-3.5 py-2.5 text-sm outline-none focus:border-[#C5A059] focus:bg-white"
+                    placeholder="e.g. Arc. Johnson / Engr. Musa"
+                    className="w-full rounded-lg border border-border bg-surface-elevated px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-brand-orange focus:bg-surface"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#0F1115] mb-1">Phone / WhatsApp Number</label>
+                  <label className="block text-xs font-bold text-foreground mb-1">Phone / WhatsApp Number</label>
                   <input
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Phone Number"
-                    className="w-full rounded-lg border border-[#E5E0D8] bg-[#FAF8F5] px-3.5 py-2.5 text-sm outline-none focus:border-[#C5A059] focus:bg-white"
+                    placeholder="e.g. 0706 349 2581"
+                    className="w-full rounded-lg border border-border bg-surface-elevated px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-brand-orange focus:bg-surface"
                   />
                 </div>
               </div>
@@ -529,7 +506,7 @@ function HomePage() {
             <div className="mt-6">
               <button
                 disabled={busy}
-                className="w-full rounded-lg bg-[#0F1115] border border-[#C5A059]/40 px-5 py-3 text-sm font-bold text-white hover:bg-[#1A1D24] hover:text-[#D4AF37] disabled:opacity-60 transition shadow-sm"
+                className="w-full rounded-lg bg-brand-orange px-5 py-3 text-sm font-bold text-canvas hover:bg-brand-orange-hover disabled:opacity-60 transition shadow-sm"
               >
                 {busy ? "Connecting…" : "Send WhatsApp Request"}
               </button>

@@ -952,8 +952,8 @@ function BusinessOpsPage() {
                   <input
                     value={newShowcaseTitle}
                     onChange={(e) => setNewShowcaseTitle(e.target.value)}
-                    placeholder="e.g. Luxury Bathroom Shower & Sanitary Ware Installation"
-                    className="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs outline-none focus:border-amber-500"
+                    placeholder="e.g. Commercial CCTV Surveillance & Biometric Access Installation"
+                    className="w-full rounded-lg border border-border bg-background px-3.5 py-2 text-xs outline-none focus:border-primary"
                   />
                 </div>
 

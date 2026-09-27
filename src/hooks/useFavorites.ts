@@ -3,14 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
-const GUEST_STORAGE_KEY = "oniks365_favorites_v2";
-const USER_STORAGE_KEY_PREFIX = "oniks365_favorites_user_v2_";
-const EVENT_NAME = "oniks365_favorites_changed";
+const GUEST_STORAGE_KEY = "apex_security_favorites_v1";
+const USER_STORAGE_KEY_PREFIX = "apex_security_favorites_user_v1_";
+const EVENT_NAME = "apex_security_favorites_changed";
 
 function getGuestFavorites(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(GUEST_STORAGE_KEY);
+    const raw = localStorage.getItem(GUEST_STORAGE_KEY) || localStorage.getItem("oniks365_favorites_v2");
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];

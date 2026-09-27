@@ -8,8 +8,8 @@ import { ShieldAlert } from "lucide-react";
 export const Route = createFileRoute("/collection_/$id")({
   head: () => ({
     meta: [
-      { title: "Resolving Project Collection — ONIKS365" },
-      { name: "description", content: "ONIKS365 Secure Project Collection Workspace resolver." },
+      { title: "Resolving Project Collection — Apex Security" },
+      { name: "description", content: "Apex Security Secure Project Collection Workspace resolver." },
     ],
   }),
   component: SmartCollectionResolver,

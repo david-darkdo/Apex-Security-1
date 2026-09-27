@@ -98,8 +98,8 @@ export const Route = createFileRoute("/product/$slug")({
   head: ({ loaderData }: any): any => {
     const product = loaderData?.product;
     const origin = loaderData?.origin || getProductionOrigin();
-    const title = product?.seo_title || `${product?.name || "Product"} — ONIKS365`;
-    const desc = product?.seo_description || product?.short_description || "Premium kitchen & bathroom solution details.";
+    const title = product?.seo_title || `${product?.name || "Product"} — Apex Security`;
+    const desc = product?.seo_description || product?.short_description || "Professional security solutions and modern door specifications.";
     const imageUrl = product?.generated_studio_image || product?.image_url || "";
     const canonical = getCanonicalProductUrl(product, origin);
 
@@ -318,7 +318,7 @@ function ProductPage() {
     "mpn": product.code || product.id,
     "brand": {
       "@type": "Brand",
-      "name": product.brand || "ONIKS365"
+      "name": product.brand || "Apex Security"
     },
     "material": product.material || undefined,
     "color": product.color || undefined,
@@ -339,7 +339,7 @@ function ProductPage() {
       },
       "seller": {
         "@type": "Organization",
-        "name": "ONIKS365",
+        "name": "Apex Security Ltd",
         "url": origin
       }
     }
@@ -473,7 +473,7 @@ function ProductPage() {
         <div className="mt-6 space-y-4">
           <div>
             <p className="text-xs font-mono uppercase tracking-[0.18em] text-primary font-bold">
-              {product.brand || "ONIKS365"} · Code {product.code}
+              {product.brand || "Apex Security"} · Code {product.code}
             </p>
             <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight uppercase">
               {product.name}

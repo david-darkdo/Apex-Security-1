@@ -210,7 +210,7 @@ function RebuiltNewProductPage() {
         setForm((prev) => ({
           ...prev,
           description: prodDesc || prev.description,
-          seo_title: d.seo_title || prev.seo_title || (prev.name ? `${prev.name} | ONIKS365 Nigeria` : ""),
+          seo_title: d.seo_title || prev.seo_title || (prev.name ? `${prev.name} | Apex Security Nigeria` : ""),
           seo_description: seoDesc || prev.seo_description,
           seo_keywords: seoKw || prev.seo_keywords,
           canonical_slug: d.canonical_slug || prev.canonical_slug || slugify(prev.name),
@@ -706,7 +706,7 @@ function RebuiltNewProductPage() {
             <input
               type="text"
               maxLength={80}
-              placeholder="e.g. Double Bowl Waterfall Tap / Wall-Hung Rimless"
+              placeholder="e.g. 5MP Solar 4G PTZ Camera / Biometric Smart Lock"
               value={form.differentiator_note}
               onChange={(e) => setForm((f) => ({ ...f, differentiator_note: e.target.value }))}
               className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"

@@ -108,7 +108,7 @@ export function FeedHeroMedia({ items }: FeedHeroMediaProps) {
             ) : (
               <img
                 src={item.media_url}
-                alt={item.title || "ONIKS 365 Visual Showcase"}
+                alt={item.title || "Apex Security Visual Showcase"}
                 className="w-full h-full object-cover transform scale-100 group-hover:scale-[1.01] transition-transform duration-1000 ease-out"
                 loading={idx === 0 ? "eager" : "lazy"}
               />

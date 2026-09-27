@@ -29,7 +29,7 @@ export const Route = createFileRoute("/my-collections")({
   validateSearch: (search: Record<string, unknown>): { collection?: string } => ({
     collection: (search.collection as string) || undefined,
   }),
-  head: () => ({ meta: [{ title: "My Collection History — ONIKS365" }] }),
+  head: () => ({ meta: [{ title: "My Collection History — Apex Security" }] }),
   component: MyCollectionsHistoryPage,
 });
 

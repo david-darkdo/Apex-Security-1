@@ -51,101 +51,81 @@ export function SiteFooter() {
   const { data: s } = useAppSettings();
 
   return (
-    <footer className="mt-6 border-t border-[#C5A059]/30 bg-[#0B0C0E] text-gray-300">
+    <footer className="mt-6 border-t border-white/10 bg-[#080C13] text-gray-300">
       <div className="container-app grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
-            <img src="/oniks365-logo.png?v=3" alt="ONIKS365 Logo" className="h-10 w-auto object-contain" />
-            <div className="font-display text-xl font-bold tracking-tight text-[#ea580c]">
-              ONIKS365
+            <img src="/apex-logo.png" alt="Apex Security Logo" className="h-10 w-auto object-contain" />
+            <div className="font-display text-xl font-bold tracking-tight text-[#FD7603]">
+              APEX SECURITY
             </div>
           </div>
           <p className="text-xs font-semibold text-gray-200">
-            ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS
+            APEX SECURITY LTD — SECURITY ELECTRONICS & MODERN DOORS
           </p>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Oniks365 is a proudly Nigerian, CAC-registered company delivering premium modern kitchen solutions and luxury bathroom fittings across Nigeria.
+            Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria.
           </p>
-          <p className="text-[11px] font-medium text-[#D4AF37]">
-            ONIKS365 – Redefining Comfort, Style, and Functionality.
+          <p className="text-[11px] font-medium text-[#AEB7C4]">
+            Dependable security technology and contemporary door solutions.
           </p>
         </div>
 
         <div>
-          <Link to="/" className="text-xs font-bold uppercase tracking-wider text-[#D4AF37] hover:text-[#ea580c] transition block">Showroom Discovery</Link>
+          <Link to="/" className="text-xs font-bold uppercase tracking-wider text-[#FD7603] hover:text-[#E06700] transition block">Showroom Discovery</Link>
           <ul className="mt-4 space-y-2.5 text-sm">
-            <li><Link to="/" className="text-gray-400 hover:text-[#D4AF37] transition font-semibold text-[#D4AF37]/90">Storefront Feed</Link></li>
-            <li><Link to="/" className="text-gray-400 hover:text-[#D4AF37] transition">Kitchen & Bathroom Catalog</Link></li>
-            <li><Link to="/home" className="text-gray-400 hover:text-[#D4AF37] transition">Showroom Home</Link></li>
-            <li><Link to="/collection" className="text-gray-400 hover:text-[#D4AF37] transition">Project Collection Workspace</Link></li>
-            <li><Link to="/contact" className="text-gray-400 hover:text-[#D4AF37] transition">Contact & Showrooms</Link></li>
+            <li><Link to="/" className="text-gray-400 hover:text-white transition font-semibold text-white/90">Storefront Feed</Link></li>
+            <li><Link to="/" className="text-gray-400 hover:text-white transition">Security & Doors Catalog</Link></li>
+            <li><Link to="/home" className="text-gray-400 hover:text-white transition">Showroom Home</Link></li>
+            <li><Link to="/collection" className="text-gray-400 hover:text-white transition">Project Collection Workspace</Link></li>
+            <li><Link to="/contact" className="text-gray-400 hover:text-white transition">Contact & Showroom</Link></li>
           </ul>
         </div>
 
         <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Locations & Delivery</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-[#FD7603]">Location & Delivery</div>
           <ul className="mt-4 space-y-3 text-xs text-gray-400">
             <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 text-[#D4AF37] shrink-0" />
+              <MapPin className="mt-0.5 h-4 w-4 text-[#FD7603] shrink-0" />
               {s?.map_url ? (
                 <a
                   href={s.map_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Open location in Google Maps"
-                  className="group hover:text-[#D4AF37] transition cursor-pointer"
+                  className="group hover:text-white transition cursor-pointer"
                 >
-                  <strong className="block text-gray-200 font-semibold group-hover:text-[#D4AF37] transition">Abuja Showroom:</strong>
-                  <span>{s.company_address || "69/243 Cornershop International Building Materials Market, Dei-Dei, Abuja FCT, Nigeria"}</span>
+                  <strong className="block text-gray-200 font-semibold group-hover:text-white transition">Abuja Showroom:</strong>
+                  <span>{s.company_address || "Opposite Timber Shed, Dei-Dei, Abuja, Nigeria"}</span>
                 </a>
               ) : (
                 <div>
                   <strong className="block text-gray-200 font-semibold">Abuja Showroom:</strong>
-                  <span>{s?.company_address || "69/243 Cornershop International Building Materials Market, Dei-Dei, Abuja FCT, Nigeria"}</span>
-                </div>
-              )}
-            </li>
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 text-[#D4AF37] shrink-0" />
-              {s?.map_url ? (
-                <a
-                  href={s.map_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Open location in Google Maps"
-                  className="group hover:text-[#D4AF37] transition cursor-pointer"
-                >
-                  <strong className="block text-gray-200 font-semibold group-hover:text-[#D4AF37] transition">Lagos Office:</strong>
-                  <span>Odunade Building Materials Market, Coker, Orile, Badagry Expressway, Lagos, Nigeria</span>
-                </a>
-              ) : (
-                <div>
-                  <strong className="block text-gray-200 font-semibold">Lagos Office:</strong>
-                  <span>Odunade Building Materials Market, Coker, Orile, Badagry Expressway, Lagos, Nigeria</span>
+                  <span>{s?.company_address || "Opposite Timber Shed, Dei-Dei, Abuja, Nigeria"}</span>
                 </div>
               )}
             </li>
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-[#D4AF37] shrink-0" />
-              <span>Nationwide Delivery across Nigeria (Payment on delivery in Abuja & Lagos)</span>
+              <Phone className="h-4 w-4 text-[#FD7603] shrink-0" />
+              <span>Nationwide delivery and professional installation coordination across Nigeria</span>
             </li>
             {s?.company_email && (
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[#D4AF37] shrink-0" />
-                <a href={`mailto:${s.company_email}`} className="hover:text-[#D4AF37]">{s.company_email}</a>
+                <Mail className="h-4 w-4 text-[#FD7603] shrink-0" />
+                <a href={`mailto:${s.company_email}`} className="hover:text-white">{s.company_email}</a>
               </li>
             )}
           </ul>
         </div>
 
         <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Connect & Inquiries</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-[#FD7603]">Connect & Inquiries</div>
           <p className="mt-4 text-xs text-gray-400 leading-relaxed">
-            Upgrading or furnishing your kitchen or bathroom? Speak directly with our consultation team via WhatsApp.
+            Securing your building, home, or commercial project? Speak directly with our security consultation team via WhatsApp.
           </p>
           <div className="mt-4">
             <a
-              href={`https://wa.me/${(s?.sales_whatsapp || "2348035186355").replace(/[^\d]/g, "")}?text=${encodeURIComponent("Hello ONIKS365, I would like to inquire about your kitchen and bathroom solutions.")}`}
+              href={`https://wa.me/${(s?.sales_whatsapp || "+2347063492581").replace(/[^\d]/g, "")}?text=${encodeURIComponent("Hello Apex Security, I would like to inquire about your CCTV systems, smart locks and security door solutions.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#1EBE5D]"
@@ -205,7 +185,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-white/10 py-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} ONIKS365 — ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS. All rights reserved.
+        © {new Date().getFullYear()} Apex Security Ltd. All rights reserved.
       </div>
     </footer>
   );

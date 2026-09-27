@@ -231,20 +231,20 @@ export const runProductDetailsEngine = createServerFn({ method: "POST" })
 
     const templateText = activeTemplate.prompt_text;
 
-    const systemPrompt = `You are ONIKS365 Product Intelligence AI, an expert in premium sanitary ware, luxury bathroom fittings, modern kitchen solutions, kitchen appliances, smart space-saving storage systems, building materials, showroom product merchandising, customer discovery, and Google SEO in Nigeria.
+    const systemPrompt = `You are Apex Security Product Intelligence AI, an expert in CCTV surveillance systems, solar security cameras, biometric systems, smart locks, digital locks, security doors, access control, technical security hardware, electronic security, customer discovery, and Google SEO in Nigeria.
 
 Your responsibility is to analyze one product using its metadata and image, generate accurate structured product intelligence, and return valid JSON matching the schema keys only.
 
 Never return explanations.
 Never return markdown codeblocks.
 Never return placeholder example strings or cliché openings.
-Your output directly populates the ONIKS365 Digital Showroom products table.`;
+Your output directly populates the Apex Security Digital Showroom products table.`;
 
     // 4. Build Product Metadata Payload
     let prompt = templateText
       .replace(/{product_name}/g, product.name || "")
       .replace(/{code}/g, product.code || "")
-      .replace(/{brand}/g, product.brand ?? "ONIKS365 Showroom")
+      .replace(/{brand}/g, product.brand ?? "Apex Security")
       .replace(/{production_name}/g, product.production_name ?? "")
       .replace(/{finish}/g, product.finish ?? product.finish_name ?? "premium finish")
       .replace(/{material}/g, product.material ?? "premium material")
@@ -301,7 +301,7 @@ Missing Fields: ${validation.missing.join(", ")}
 PRODUCT CONTEXT:
 Product Name: ${product.name}
 Code: ${product.code}
-Brand: ${product.brand ?? "ONIKS365 Showroom"}
+Brand: ${product.brand ?? "Apex Security"}
 Material: ${product.material ?? "premium material"}
 Finish: ${product.finish ?? product.finish_name ?? "premium finish"}
 Category: ${categoryName}
@@ -317,7 +317,7 @@ ${JSON.stringify(
     validation.missing.map((k) => [
       k,
       k === "faq"
-        ? [{ question: "Specific question about plumbing/finish/installation", answer: "Factual concise answer" }]
+        ? [{ question: "Specific question about security features/hardware/installation", answer: "Factual concise answer" }]
         : k.endsWith("_description") || k.endsWith("_title")
         ? "string"
         : ["item 1", "item 2"]
@@ -328,7 +328,7 @@ ${JSON.stringify(
 )}
 
 STRICT RULES:
-- Address this specific luxury product and its differentiator directly.
+- Address this specific security product and its differentiator directly.
 - Return ONLY valid compact JSON containing the missing keys with non-empty, meaningful content.
 - Never return empty arrays or placeholder strings.`;
 
@@ -361,7 +361,7 @@ STRICT RULES:
       ? validation.cleanData.product_benefits
       : cleanStringArray(existingDoc.product_benefits);
 
-    const finalSeoTitle = validation.cleanData.seo_title || product.seo_title || (product.name ? `${product.name} | ONIKS365 Nigeria` : "");
+    const finalSeoTitle = validation.cleanData.seo_title || product.seo_title || (product.name ? `${product.name} | Apex Security Ltd Nigeria` : "");
     const finalSeoDescription = validation.cleanData.seo_description || product.seo_description || "";
     const finalSeoKeywords = (validation.cleanData.seo_keywords && validation.cleanData.seo_keywords.length > 0)
       ? validation.cleanData.seo_keywords

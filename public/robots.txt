@@ -13,4 +13,4 @@ Allow: /
 User-agent: Googlebot-Image
 Allow: /
 
-Sitemap: https://oniks365.ng/sitemap.xml
+Sitemap: https://apex-security-1.vercel.app/sitemap.xml

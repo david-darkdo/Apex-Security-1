@@ -463,7 +463,7 @@ function RebuiltEditProductPage() {
             <input
               type="text"
               maxLength={80}
-              placeholder="e.g. Double Bowl Waterfall Tap / Wall-Hung Rimless"
+              placeholder="e.g. 5MP Solar 4G PTZ Camera / Biometric Smart Lock"
               value={p.differentiator_note || ""}
               onChange={(e) => setField("differentiator_note", e.target.value)}
               className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"

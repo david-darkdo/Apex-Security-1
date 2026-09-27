@@ -14,6 +14,25 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
 
+  /* Semantic Architecture Tokens */
+  --color-canvas: #080C13;
+  --color-surface: #101722;
+  --color-surface-elevated: #151E2A;
+  --color-border-subtle: rgba(255, 255, 255, 0.10);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --color-text-primary: #F5F7FA;
+  --color-text-secondary: #AEB7C4;
+  --color-text-muted: #778292;
+
+  /* Official Brand Colors (Extracted from Logo) */
+  --color-brand-orange: #FD7603;
+  --color-brand-orange-hover: #E06700;
+  --color-brand-orange-soft: rgba(253, 118, 3, 0.14);
+  --color-brand-blue: #0068DD;
+  --color-brand-blue-hover: #0056B8;
+  --color-brand-blue-soft: rgba(0, 104, 221, 0.14);
+
+  /* System UI Semantic Mappings */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -33,53 +52,56 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-gold: var(--gold);
-  --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-gold: var(--primary);
 }
 
 /*
- * ONIKS365 Central Luxury Design Tokens:
- * Deep Black + Near-Black + Warm Charcoal + Brushed Gold + ONIKS Orange + Warm Off-White
+ * APEX SECURITY LTD — MASTER COLOR SYSTEM
+ *
+ * Canvas (60-70%): Deep Charcoal / Near-Black #080C13 (NO pure #000000)
+ * Surface: #101722
+ * Elevated Surface: #151E2A
+ * Information / Typography (20-25%): Primary #F5F7FA, Secondary #AEB7C4, Muted #778292
+ * Primary Brand (Action / Conversion, 5-10%): Official Orange #FD7603
+ * Secondary Brand (Trust / Security / Status, 3-7%): Official Blue #0068DD
  */
 :root {
   --radius: 0.75rem;
 
-  /* Backgrounds — warm ivory / off-white paper feel */
-  --background: #FAF8F5;
-  --foreground: #121316;
-  --surface: #F4F0EA;
-  --surface-2: #EFECE6;
+  /* Canvas & Surfaces */
+  --background: #080C13;
+  --foreground: #F5F7FA;
+  --surface: #101722;
+  --surface-2: #151E2A;
 
-  --card: #FFFFFF;
-  --card-foreground: #121316;
-  --popover: #FFFFFF;
-  --popover-foreground: #121316;
+  --card: #101722;
+  --card-foreground: #F5F7FA;
+  --popover: #151E2A;
+  --popover-foreground: #F5F7FA;
 
-  /* Primary: Deep Black */
-  --primary: #0F1115;
-  --primary-foreground: #FAF8F5;
+  /* Primary Brand: Apex Security Orange (Action / CTA / Key Highlights) */
+  --primary: #FD7603;
+  --primary-foreground: #080C13;
 
-  /* Gold: Premium Brushed Gold */
-  --gold: #D4AF37;
-  --accent: #C5A059;
-  --accent-foreground: #0F1115;
+  /* Secondary Brand: Apex Security Blue (Trust / Technology / Verification) */
+  --secondary: #151E2A;
+  --secondary-foreground: #F5F7FA;
 
-  /* Orange: Established ONIKS Orange */
-  --orange: #ea580c;
+  /* Accent: Apex Security Blue */
+  --accent: #0068DD;
+  --accent-foreground: #FFFFFF;
 
-  --secondary: #EFECE6;
-  --secondary-foreground: #0F1115;
+  --muted: #151E2A;
+  --muted-foreground: #AEB7C4;
 
-  --muted: #F0EDE6;
-  --muted-foreground: #6B6862;
-
-  --destructive: #C0262D;
+  --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
 
-  --border: #E5E0D8;
-  --input: #E2DDD5;
-  --ring: #C5A059;
+  /* Architectural Borders */
+  --border: rgba(255, 255, 255, 0.10);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #FD7603;
 }
 
 @layer base {
@@ -89,6 +111,8 @@
 
   html {
     font-family: var(--font-sans);
+    background-color: #080C13;
+    color: #F5F7FA;
   }
 
   body {
@@ -101,6 +125,11 @@
   h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: rgba(253, 118, 3, 0.3);
+    color: #FFFFFF;
   }
 }
 

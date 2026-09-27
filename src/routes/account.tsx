@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/account")({
-  head: () => ({ meta: [{ title: "Account — ONIKS365" }] }),
+  head: () => ({ meta: [{ title: "Account — Apex Security" }] }),
   component: AccountPage,
 });
 

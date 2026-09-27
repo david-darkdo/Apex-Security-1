@@ -39,3 +39,4 @@ export function getProductionOrigin(request?: Request): string {
   // 6. Safe local fallback
   return "http://localhost:3000";
 }
+

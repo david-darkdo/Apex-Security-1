@@ -278,7 +278,7 @@ function AdminCustomerWorkspacePage() {
   const refNum = collection?.reference_number || generateCollectionReference(id);
 
   const quotationSummaryText = [
-    `*ONIKS 365 — Quotation Resolution*`,
+    `*Apex Security — Quotation Resolution*`,
     `Ref: ${refNum}`,
     `Customer: ${customerName}`,
     `Project: ${collection?.project_name || collection?.name || "Showroom Selection"}`,
@@ -295,7 +295,7 @@ function AdminCustomerWorkspacePage() {
     `*Total Estimated Value: ₦${totalEstimate.toLocaleString()}*`,
     `Project Review Link: ${smartCollectionUrl}`,
     ``,
-    `Our procurement engineers have reviewed your project specifications and are prepared to process fulfillment.`
+    `Our security technical engineers have reviewed your system specifications and are prepared to process fulfillment.`
   ].join("\n");
 
   return (

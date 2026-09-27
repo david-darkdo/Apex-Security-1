@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Seamless Scrolling Marquee Trust Ticker Belt */}
       {trustFeatures.length > 0 && (
-        <section className="fixed bottom-12 md:bottom-0 left-0 right-0 z-20 border-t border-[#C5A059]/20 bg-[#14161B]/95 py-2.5 shadow-md overflow-hidden backdrop-blur select-none text-gray-200">
+        <section className="fixed bottom-12 md:bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-[#080C13]/95 py-2.5 shadow-md overflow-hidden backdrop-blur select-none text-gray-200">
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -91,12 +91,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 t.icon_name === "Headphones" ? Headphones : HelpCircle;
               return (
                 <div key={`${t.id}-1`} className="flex gap-2.5 items-center shrink-0">
-                  <div className="rounded-full bg-[#C5A059]/15 p-1.5 text-[#D4AF37] shrink-0 border border-[#C5A059]/30">
+                  <div className="rounded-full bg-[#FD7603]/15 p-1.5 text-[#FD7603] shrink-0 border border-[#FD7603]/30">
                     <IconComponent className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0 flex items-baseline gap-1.5">
                     <h4 className="font-bold text-[11px] text-white tracking-tight whitespace-nowrap">{t.title}</h4>
-                    <span className="text-[10px] text-[#C5A059]/50 font-bold font-mono">|</span>
+                    <span className="text-[10px] text-white/30 font-bold font-mono">|</span>
                     <p className="text-[10px] text-gray-300 whitespace-nowrap">{t.description}</p>
                   </div>
                 </div>
@@ -112,12 +112,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 t.icon_name === "Headphones" ? Headphones : HelpCircle;
               return (
                 <div key={`${t.id}-2`} className="flex gap-2.5 items-center shrink-0">
-                  <div className="rounded-full bg-[#C5A059]/15 p-1.5 text-[#D4AF37] shrink-0 border border-[#C5A059]/30">
+                  <div className="rounded-full bg-[#FD7603]/15 p-1.5 text-[#FD7603] shrink-0 border border-[#FD7603]/30">
                     <IconComponent className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0 flex items-baseline gap-1.5">
                     <h4 className="font-bold text-[11px] text-white tracking-tight whitespace-nowrap">{t.title}</h4>
-                    <span className="text-[10px] text-[#C5A059]/50 font-bold font-mono">|</span>
+                    <span className="text-[10px] text-white/30 font-bold font-mono">|</span>
                     <p className="text-[10px] text-gray-300 whitespace-nowrap">{t.description}</p>
                   </div>
                 </div>
@@ -211,20 +211,20 @@ function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#C5A059]/30 bg-[#0F1115] text-white backdrop-blur shadow-md">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#080C13] text-white backdrop-blur shadow-md">
       <div className="container-app flex items-center gap-4 py-3">
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/oniks365-logo.png?v=3"
-            alt="ONIKS365 Logo"
+            src="/apex-logo.png"
+            alt="Apex Security Logo"
             className="h-9 w-auto object-contain transition group-hover:scale-105"
           />
           <div className="flex flex-col">
-            <span className="font-display text-lg font-bold tracking-tight text-[#ea580c] leading-none">
-              ONIKS365
+            <span className="font-display text-lg font-bold tracking-tight text-[#FD7603] leading-none">
+              APEX SECURITY
             </span>
-            <span className="hidden text-[9px] font-semibold tracking-wider text-[#D4AF37] uppercase sm:block mt-0.5">
-              ONIKS 365 LUXURY KITCHEN AND BATHROOMS FITTINGS
+            <span className="hidden text-[9px] font-semibold tracking-wider text-[#AEB7C4] uppercase sm:block mt-0.5">
+              SECURITY ELECTRONICS & MODERN DOORS
             </span>
           </div>
         </Link>
@@ -241,8 +241,8 @@ function TopBar() {
           <input
             name="q"
             defaultValue={search?.q ?? ""}
-            placeholder="Search Sanitary Ware, Kitchen Sinks, Showers & Fittings…"
-            className="w-full rounded-full border border-white/20 bg-white/10 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 outline-none transition focus:border-[#C5A059] focus:bg-white/15 focus:ring-1 focus:ring-[#C5A059]"
+            placeholder="Search CCTV, smart locks, security doors, access control…"
+            className="w-full rounded-full border border-white/20 bg-white/10 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 outline-none transition focus:border-[#FD7603] focus:bg-white/15 focus:ring-1 focus:ring-[#FD7603]"
           />
         </form>
         

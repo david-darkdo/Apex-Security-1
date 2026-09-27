@@ -23,8 +23,16 @@ const FIELDS: [string, string, string?][] = [
   ["instagram_url", "Instagram URL"],
   ["tiktok_url", "TikTok URL"],
   ["youtube_url", "YouTube URL"],
-  ["google_site_verification", "Google Site Verification", "Paste the Google Search Console meta tag content code"],
-  ["bing_site_verification", "Bing Site Verification", "Paste the Bing Webmaster tools xml/meta verification code"],
+  [
+    "google_site_verification",
+    "Google Site Verification",
+    "Paste the Google Search Console meta tag content code",
+  ],
+  [
+    "bing_site_verification",
+    "Bing Site Verification",
+    "Paste the Bing Webmaster tools xml/meta verification code",
+  ],
 ];
 
 function SettingsPage() {
@@ -47,7 +55,10 @@ function SettingsPage() {
     const payload: Record<string, string | null> = {};
     for (const [k] of FIELDS) payload[k] = form[k]?.trim() || null;
     const { error } = settings?.id
-      ? await supabase.from("app_settings").update(payload as any).eq("id", settings.id)
+      ? await supabase
+          .from("app_settings")
+          .update(payload as any)
+          .eq("id", settings.id)
       : await supabase.from("app_settings").insert(payload as any);
     setSaving(false);
     if (error) {
@@ -59,7 +70,11 @@ function SettingsPage() {
   };
 
   if (authLoading) {
-    return <AppShell><div className="container-app py-10 text-sm text-muted-foreground">Loading settings…</div></AppShell>;
+    return (
+      <AppShell>
+        <div className="container-app py-10 text-sm text-muted-foreground">Loading settings…</div>
+      </AppShell>
+    );
   }
 
   if (!isSuperAdmin) {
@@ -74,7 +89,10 @@ function SettingsPage() {
             <p className="mt-2 text-xs text-muted-foreground">
               Apex Security business settings can only be edited by a super admin.
             </p>
-            <Link to="/account" className="mt-4 inline-block rounded-lg border border-border bg-white px-4 py-2 text-xs font-bold hover:bg-surface-2">
+            <Link
+              to="/account"
+              className="mt-4 inline-block rounded-lg border border-border bg-surface-2 px-4 py-2 text-xs font-bold hover:bg-surface-elevated transition"
+            >
               Back to Account
             </Link>
           </div>
@@ -89,9 +107,12 @@ function SettingsPage() {
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <SettingsIcon className="h-6 w-6 text-primary" />
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Apex Security Business Settings</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">
+              Apex Security Business Settings
+            </h1>
             <p className="text-xs text-muted-foreground">
-              Configure corporate phone numbers, WhatsApp, addresses, and Search Console verification tokens.
+              Configure corporate phone numbers, WhatsApp, addresses, and Search Console
+              verification tokens.
             </p>
           </div>
         </div>
@@ -99,13 +120,11 @@ function SettingsPage() {
         <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
           {FIELDS.map(([key, label, hint]) => (
             <label key={key} className="text-xs space-y-1">
-              <span className="block font-bold uppercase tracking-wider text-primary">
-                {label}
-              </span>
+              <span className="block font-bold uppercase tracking-wider text-primary">{label}</span>
               <input
                 value={form[key] ?? ""}
                 onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-white px-3.5 py-2 text-sm text-foreground outline-none focus:border-primary"
+                className="w-full rounded-lg border border-border bg-surface-2 px-3.5 py-2 text-sm text-foreground outline-none focus:border-primary"
               />
               {hint && <span className="block text-[11px] text-muted-foreground">{hint}</span>}
             </label>

@@ -2,7 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles, Trash2, Globe, Search, ChevronDown, ChevronUp, Image, Layers, Cpu, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  Trash2,
+  Globe,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Image,
+  Layers,
+  Cpu,
+  ShieldCheck,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runProductPipeline } from "@/lib/ai-pipeline.functions";
 import { generateStandaloneLifestyleImage } from "@/lib/lifestyle-image.functions";
@@ -38,7 +50,10 @@ function RebuiltEditProductPage() {
   const [runningPipeline, setRunningPipeline] = useState(false);
 
   // Photo Editor Modal State
-  const [editingImage, setEditingImage] = useState<{ url: string; target: "image_url" | "generated_installed_image" } | null>(null);
+  const [editingImage, setEditingImage] = useState<{
+    url: string;
+    target: "image_url" | "generated_installed_image";
+  } | null>(null);
 
   // Collapsible section toggles (Default Collapsed)
   const [showAdvancedAi, setShowAdvancedAi] = useState(false);
@@ -54,7 +69,12 @@ function RebuiltEditProductPage() {
   const load = useCallback(async () => {
     const [pRes, assetsRes] = await Promise.all([
       supabase.from("products").select("*").eq("id", id).maybeSingle(),
-      supabase.from("product_assets").select("*").eq("product_id", id).eq("asset_type", "installed").order("created_at", { ascending: false }),
+      supabase
+        .from("product_assets")
+        .select("*")
+        .eq("product_id", id)
+        .eq("asset_type", "installed")
+        .order("created_at", { ascending: false }),
     ]);
 
     if (pRes.error) return toast.error(pRes.error.message);
@@ -63,8 +83,18 @@ function RebuiltEditProductPage() {
     if (!data.canonical_slug && data.name) {
       data.canonical_slug = slugify(data.name);
     }
-    const masterDoc = (data.master_document && typeof data.master_document === "object" && !Array.isArray(data.master_document)) ? (data.master_document as Record<string, any>) : {};
-    const aiUnd = (data.ai_understanding && typeof data.ai_understanding === "object" && !Array.isArray(data.ai_understanding)) ? (data.ai_understanding as Record<string, any>) : {};
+    const masterDoc =
+      data.master_document &&
+      typeof data.master_document === "object" &&
+      !Array.isArray(data.master_document)
+        ? (data.master_document as Record<string, any>)
+        : {};
+    const aiUnd =
+      data.ai_understanding &&
+      typeof data.ai_understanding === "object" &&
+      !Array.isArray(data.ai_understanding)
+        ? (data.ai_understanding as Record<string, any>)
+        : {};
     if (!masterDoc.alternative_names || masterDoc.alternative_names.length === 0) {
       const fallbackAlts = Array.isArray(aiUnd.alternative_names) ? aiUnd.alternative_names : [];
       if (fallbackAlts.length > 0) {
@@ -84,7 +114,10 @@ function RebuiltEditProductPage() {
         generated_by_ai: false,
       });
       if (!p.generated_installed_image) {
-        await supabase.from("products").update({ generated_installed_image: path } as any).eq("id", id);
+        await supabase
+          .from("products")
+          .update({ generated_installed_image: path } as any)
+          .eq("id", id);
       }
     }
     toast.success("Added installation images!");
@@ -113,11 +146,25 @@ function RebuiltEditProductPage() {
     })();
   }, [id, load]);
 
-  const filteredCats = useMemo(() => cats.filter((c) => c.type_id === p?.type_id), [cats, p?.type_id]);
-  const filteredSubs = useMemo(() => subs.filter((s) => s.category_id === p?.category_id), [subs, p?.category_id]);
-  const filteredFams = useMemo(() => fams.filter((f) => f.subcategory_id === p?.subcategory_id), [fams, p?.subcategory_id]);
+  const filteredCats = useMemo(
+    () => cats.filter((c) => c.type_id === p?.type_id),
+    [cats, p?.type_id],
+  );
+  const filteredSubs = useMemo(
+    () => subs.filter((s) => s.category_id === p?.category_id),
+    [subs, p?.category_id],
+  );
+  const filteredFams = useMemo(
+    () => fams.filter((f) => f.subcategory_id === p?.subcategory_id),
+    [fams, p?.subcategory_id],
+  );
 
-  if (!p) return <div className="container-app py-10 text-sm text-muted-foreground font-mono">Loading product data…</div>;
+  if (!p)
+    return (
+      <div className="container-app py-10 text-sm text-muted-foreground font-mono">
+        Loading product data…
+      </div>
+    );
 
   const setField = (key: string, value: any) => {
     setP((prev: any) => ({ ...prev, [key]: value }));
@@ -188,13 +235,23 @@ function RebuiltEditProductPage() {
     const shortDesc = p.short_description ? p.short_description.trim() : null;
     const generatedDesc = p.generated_description || null;
     const seoDesc = p.seo_description ? p.seo_description.trim() : null;
-    const finalCanonicalSlug = slugify(p.canonical_slug) || slugify(p.name) || p.slug || `product-${p.code || id.slice(0, 8)}`;
+    const finalCanonicalSlug =
+      slugify(p.canonical_slug) ||
+      slugify(p.name) ||
+      p.slug ||
+      `product-${p.code || id.slice(0, 8)}`;
     // Preserve existing slug to guarantee URL stability unless explicitly changed
-    const finalSlug = (p.slug && p.slug.trim()) ? p.slug.trim() : finalCanonicalSlug;
+    const finalSlug = p.slug && p.slug.trim() ? p.slug.trim() : finalCanonicalSlug;
 
-    let currentMasterDoc = (p.master_document && typeof p.master_document === "object") ? { ...p.master_document } : {};
-    if (!Array.isArray(currentMasterDoc.alternative_names) || currentMasterDoc.alternative_names.length === 0) {
-      const aiAlts = Array.isArray(p.ai_understanding?.alternative_names) ? p.ai_understanding.alternative_names : [];
+    let currentMasterDoc =
+      p.master_document && typeof p.master_document === "object" ? { ...p.master_document } : {};
+    if (
+      !Array.isArray(currentMasterDoc.alternative_names) ||
+      currentMasterDoc.alternative_names.length === 0
+    ) {
+      const aiAlts = Array.isArray(p.ai_understanding?.alternative_names)
+        ? p.ai_understanding.alternative_names
+        : [];
       currentMasterDoc.alternative_names = aiAlts;
     }
 
@@ -220,7 +277,10 @@ function RebuiltEditProductPage() {
     delete payload.updated_at;
     delete payload.similar_product_ids;
 
-    const { error } = await supabase.from("products").update(payload as any).eq("id", id);
+    const { error } = await supabase
+      .from("products")
+      .update(payload as any)
+      .eq("id", id);
     if (error) {
       setSaving(false);
       return toast.error(error.message);
@@ -236,19 +296,30 @@ function RebuiltEditProductPage() {
     await load();
   };
 
-  const arrToStr = (v: any) => (Array.isArray(v) ? v.join(", ") : v ?? "");
-  const strToArr = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
+  const arrToStr = (v: any) => (Array.isArray(v) ? v.join(", ") : (v ?? ""));
+  const strToArr = (v: string) =>
+    v
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   return (
     <div className="container-app py-6 max-w-5xl space-y-6">
       {/* Header Navigation & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
-          <Link to="/admin/products" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-1">
+          <Link
+            to="/admin/products"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-1"
+          >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to library
           </Link>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground uppercase">{p.name || "Edit Product"}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5 font-mono">ID: {id} · Code: {p.code}</p>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground uppercase">
+            {p.name || "Edit Product"}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+            ID: {id} · Code: {p.code}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -265,13 +336,17 @@ function RebuiltEditProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <Layers className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 1 — Product Information</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 1 — Product Information
+          </h2>
         </div>
 
         {/* Classification Hierarchy */}
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Type *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Type *
+            </label>
             <select
               value={p.type_id || ""}
               onChange={(e) => setField("type_id", e.target.value)}
@@ -279,12 +354,16 @@ function RebuiltEditProductPage() {
             >
               <option value="">Select Type…</option>
               {types.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Category *
+            </label>
             <select
               value={p.category_id || ""}
               onChange={(e) => setField("category_id", e.target.value)}
@@ -292,12 +371,16 @@ function RebuiltEditProductPage() {
             >
               <option value="">Select Category…</option>
               {filteredCats.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subcategory *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Subcategory *
+            </label>
             <select
               value={p.subcategory_id || ""}
               onChange={(e) => setField("subcategory_id", e.target.value)}
@@ -305,12 +388,16 @@ function RebuiltEditProductPage() {
             >
               <option value="">Select Subcategory…</option>
               {filteredSubs.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Family Group *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Family Group *
+            </label>
             <select
               value={p.family_id || ""}
               onChange={(e) => setField("family_id", e.target.value)}
@@ -318,7 +405,9 @@ function RebuiltEditProductPage() {
             >
               <option value="">Select Family…</option>
               {filteredFams.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
               ))}
             </select>
           </div>
@@ -327,7 +416,9 @@ function RebuiltEditProductPage() {
         {/* Product Fields */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="sm:col-span-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Name *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Name *
+            </label>
             <input
               type="text"
               value={p.name || ""}
@@ -336,7 +427,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Code</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Code
+            </label>
             <input
               type="text"
               value={p.code || ""}
@@ -348,7 +441,9 @@ function RebuiltEditProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Brand</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Brand
+            </label>
             <input
               type="text"
               value={p.brand || ""}
@@ -357,7 +452,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price (NGN) *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Price (NGN) *
+            </label>
             <input
               type="number"
               value={p.price || 0}
@@ -366,7 +463,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Original Price (NGN)</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Original Price (NGN)
+            </label>
             <input
               type="number"
               placeholder="Optional regular price"
@@ -376,7 +475,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pricing Unit *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Pricing Unit *
+            </label>
             <select
               value={p.pricing_unit || "piece"}
               onChange={(e) => setField("pricing_unit", e.target.value)}
@@ -396,7 +497,9 @@ function RebuiltEditProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Size / Dimension</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Size / Dimension
+            </label>
             <input
               type="text"
               value={p.size || ""}
@@ -405,7 +508,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Finish</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Finish
+            </label>
             <input
               type="text"
               value={p.finish_name || p.finish || ""}
@@ -414,7 +519,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Material</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Material
+            </label>
             <input
               type="text"
               value={p.material || ""}
@@ -423,7 +530,9 @@ function RebuiltEditProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Color</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Color
+            </label>
             <input
               type="text"
               value={p.color || ""}
@@ -435,7 +544,9 @@ function RebuiltEditProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Differentiator Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Differentiator Type
+            </label>
             <select
               value={p.differentiator_type || ""}
               onChange={(e) => setField("differentiator_type", e.target.value)}
@@ -457,8 +568,12 @@ function RebuiltEditProductPage() {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Differentiator Note</label>
-              <span className="text-[9px] text-muted-foreground">{(p.differentiator_note || "").length}/80</span>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Differentiator Note
+              </label>
+              <span className="text-[9px] text-muted-foreground">
+                {(p.differentiator_note || "").length}/80
+              </span>
             </div>
             <input
               type="text"
@@ -472,7 +587,9 @@ function RebuiltEditProductPage() {
         </div>
 
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Description</label>
+          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Product Description
+          </label>
           <textarea
             rows={3}
             placeholder="Detailed customer-facing product description..."
@@ -487,36 +604,57 @@ function RebuiltEditProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <Image className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 2 — Images</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 2 — Images
+          </h2>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Original Manufacturer Image (FIXED SOURCE OF TRUTH) */}
           <div className="space-y-3 bg-muted/20 border border-border p-4 rounded-xl">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600">Original Manufacturer Image *</label>
-              <span className="text-[10px] text-muted-foreground font-semibold">Source of Truth</span>
+              <label className="text-xs font-bold uppercase tracking-wider text-primary">
+                Original Manufacturer Image *
+              </label>
+              <span className="text-[10px] text-muted-foreground font-semibold">
+                Source of Truth
+              </span>
             </div>
             {p.image_url ? (
               <ImageTile
                 url={publicImageUrl(p.image_url) || p.image_url}
                 onDelete={() => setField("image_url", null)}
-                onEdit={() => setEditingImage({ url: publicImageUrl(p.image_url) || p.image_url, target: "image_url" })}
+                onEdit={() =>
+                  setEditingImage({
+                    url: publicImageUrl(p.image_url) || p.image_url,
+                    target: "image_url",
+                  })
+                }
                 badge="Original Source of Truth"
               />
             ) : (
-              <ImageUploader multiple={false} onUploaded={(paths) => setField("image_url", paths[0])} label="Upload Original Product Image" />
+              <ImageUploader
+                multiple={false}
+                onUploaded={(paths) => setField("image_url", paths[0])}
+                label="Upload Original Product Image"
+              />
             )}
             <p className="text-[10px] text-muted-foreground leading-relaxed">
-              This fixed original manufacturer image is the single source of truth for the product and is never overwritten or turned into a carousel.
+              This fixed original manufacturer image is the single source of truth for the product
+              and is never overwritten or turned into a carousel.
             </p>
           </div>
 
           {/* Installation Images (MULTIPLE SWITCHABLE GALLERY) */}
           <div className="space-y-3 bg-muted/20 border border-border p-4 rounded-xl">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600">Installation Gallery ({installationAssets.length + (p.generated_installed_image ? 1 : 0)})</label>
-              <span className="text-[10px] text-muted-foreground font-semibold">Multiple Switchable Images</span>
+              <label className="text-xs font-bold uppercase tracking-wider text-primary">
+                Installation Gallery (
+                {installationAssets.length + (p.generated_installed_image ? 1 : 0)})
+              </label>
+              <span className="text-[10px] text-muted-foreground font-semibold">
+                Multiple Switchable Images
+              </span>
             </div>
 
             {/* List of Installation Images */}
@@ -525,7 +663,13 @@ function RebuiltEditProductPage() {
                 <ImageTile
                   url={publicImageUrl(p.generated_installed_image) || p.generated_installed_image}
                   onDelete={() => setField("generated_installed_image", null)}
-                  onEdit={() => setEditingImage({ url: publicImageUrl(p.generated_installed_image) || p.generated_installed_image, target: "generated_installed_image" })}
+                  onEdit={() =>
+                    setEditingImage({
+                      url:
+                        publicImageUrl(p.generated_installed_image) || p.generated_installed_image,
+                      target: "generated_installed_image",
+                    })
+                  }
                   badge="Primary Installed Scene"
                 />
               )}
@@ -540,7 +684,11 @@ function RebuiltEditProductPage() {
             </div>
 
             <div className="space-y-2 pt-2 border-t border-border">
-              <ImageUploader multiple={true} onUploaded={handleAddInstallationImages} label="Add Installation Images to Gallery" />
+              <ImageUploader
+                multiple={true}
+                onUploaded={handleAddInstallationImages}
+                label="Add Installation Images to Gallery"
+              />
 
               <button
                 type="button"
@@ -549,7 +697,9 @@ function RebuiltEditProductPage() {
                 className="w-full flex items-center justify-center gap-2 rounded border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
-                {generatingLifestyle ? "Engine 2 Generating Installed Image…" : "Generate AI Installed Image (Engine 2)"}
+                {generatingLifestyle
+                  ? "Engine 2 Generating Installed Image…"
+                  : "Generate AI Installed Image (Engine 2)"}
               </button>
             </div>
           </div>
@@ -560,7 +710,9 @@ function RebuiltEditProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 3 — Publishing Settings</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 3 — Publishing Settings
+          </h2>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -597,10 +749,18 @@ function RebuiltEditProductPage() {
         >
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 4 — Advanced AI Operations</h2>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">Engine 1 & Engine 2</span>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 4 — Advanced AI Operations
+            </h2>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">
+              Engine 1 & Engine 2
+            </span>
           </div>
-          {showAdvancedAi ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showAdvancedAi ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showAdvancedAi && (
@@ -623,7 +783,9 @@ function RebuiltEditProductPage() {
                 className="flex items-center justify-center gap-2 rounded border border-primary/40 bg-primary/10 px-4 py-3 text-xs font-bold text-primary hover:bg-primary/20 transition disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
-                {generatingLifestyle ? "Generating Installed Image…" : "Generate Installed Image (Engine 2)"}
+                {generatingLifestyle
+                  ? "Generating Installed Image…"
+                  : "Generate Installed Image (Engine 2)"}
               </button>
 
               <button
@@ -641,51 +803,72 @@ function RebuiltEditProductPage() {
             <div className="rounded-lg border border-border bg-background p-3 text-xs space-y-2 font-mono text-muted-foreground">
               <div className="flex items-center justify-between text-foreground font-semibold">
                 <span>AI State: {p.processing_state || "completed"}</span>
-                <span className="text-[10px] text-primary">{p.last_processed_at ? new Date(p.last_processed_at).toLocaleString() : "Never"}</span>
+                <span className="text-[10px] text-primary">
+                  {p.last_processed_at ? new Date(p.last_processed_at).toLocaleString() : "Never"}
+                </span>
               </div>
               {p.error_log ? (
-                <p className="text-[11px] text-destructive">{typeof p.error_log === "object" ? JSON.stringify(p.error_log) : p.error_log}</p>
+                <p className="text-[11px] text-destructive">
+                  {typeof p.error_log === "object" ? JSON.stringify(p.error_log) : p.error_log}
+                </p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">Product details engine synced. Ready for publishing.</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Product details engine synced. Ready for publishing.
+                </p>
               )}
             </div>
 
             {/* Generated Highlights, Features & Benefits */}
             <div className="grid gap-3 sm:grid-cols-3 pt-2">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Highlights</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Highlights
+                </label>
                 <textarea
                   rows={3}
                   value={arrToStr(p.master_document?.product_highlights)}
                   onChange={(e) => {
                     const arr = strToArr(e.target.value);
-                    setField("master_document", { ...(p.master_document || {}), product_highlights: arr });
+                    setField("master_document", {
+                      ...(p.master_document || {}),
+                      product_highlights: arr,
+                    });
                   }}
                   placeholder="Key selling points..."
                   className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Features</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Features
+                </label>
                 <textarea
                   rows={3}
                   value={arrToStr(p.master_document?.product_features)}
                   onChange={(e) => {
                     const arr = strToArr(e.target.value);
-                    setField("master_document", { ...(p.master_document || {}), product_features: arr });
+                    setField("master_document", {
+                      ...(p.master_document || {}),
+                      product_features: arr,
+                    });
                   }}
                   placeholder="Technical & architectural features..."
                   className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Benefits</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Benefits
+                </label>
                 <textarea
                   rows={3}
                   value={arrToStr(p.master_document?.product_benefits)}
                   onChange={(e) => {
                     const arr = strToArr(e.target.value);
-                    setField("master_document", { ...(p.master_document || {}), product_benefits: arr });
+                    setField("master_document", {
+                      ...(p.master_document || {}),
+                      product_benefits: arr,
+                    });
                   }}
                   placeholder="Customer lifestyle & durability benefits..."
                   className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"
@@ -714,9 +897,14 @@ function RebuiltEditProductPage() {
               {Array.isArray(p.faq) && p.faq.length > 0 ? (
                 <div className="space-y-3">
                   {p.faq.map((item: any, idx: number) => (
-                    <div key={idx} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                    <div
+                      key={idx}
+                      className="rounded-lg border border-border bg-background p-3 space-y-2"
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase text-primary">Question #{idx + 1}</span>
+                        <span className="text-[10px] font-bold uppercase text-primary">
+                          Question #{idx + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => {
@@ -754,7 +942,9 @@ function RebuiltEditProductPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic py-1">No FAQs generated yet. Run Engine 1 to populate 2–3 product-specific questions.</p>
+                <p className="text-xs text-muted-foreground italic py-1">
+                  No FAQs generated yet. Run Engine 1 to populate 2–3 product-specific questions.
+                </p>
               )}
             </div>
           </div>
@@ -770,16 +960,26 @@ function RebuiltEditProductPage() {
         >
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 5 — Google SEO & Metadata</h2>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">SERP Snippet & Search Tags</span>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 5 — Google SEO & Metadata
+            </h2>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">
+              SERP Snippet & Search Tags
+            </span>
           </div>
-          {showSeoSection ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showSeoSection ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showSeoSection && (
           <div className="p-5 border-t border-border space-y-4 bg-muted/10">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Title</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                SEO Title
+              </label>
               <input
                 type="text"
                 value={p.seo_title || ""}
@@ -789,7 +989,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Description</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                SEO Description
+              </label>
               <textarea
                 rows={3}
                 placeholder="Google SERP snippet description..."
@@ -801,7 +1003,9 @@ function RebuiltEditProductPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Keywords (Comma Separated)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  SEO Keywords (Comma Separated)
+                </label>
                 <input
                   type="text"
                   value={arrToStr(p.seo_keywords)}
@@ -810,7 +1014,9 @@ function RebuiltEditProductPage() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Canonical Slug</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Canonical Slug
+                </label>
                 <input
                   type="text"
                   value={p.canonical_slug || slugify(p.name) || ""}
@@ -832,32 +1038,50 @@ function RebuiltEditProductPage() {
         >
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 6 — Search Intelligence Index</h2>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">Showroom & Full Text</span>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 6 — Search Intelligence Index
+            </h2>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">
+              Showroom & Full Text
+            </span>
           </div>
-          {showSearchSection ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showSearchSection ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showSearchSection && (
           <div className="p-5 border-t border-border space-y-4 bg-muted/10">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Search Keywords (App Index)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Search Keywords (App Index)
+              </label>
               <textarea
                 rows={2}
-                value={arrToStr(p.app_keywords || p.app_search_keywords || p.master_document?.search_keywords || p.master_document?.google_search_tags)}
+                value={arrToStr(
+                  p.app_keywords ||
+                    p.app_search_keywords ||
+                    p.master_document?.search_keywords ||
+                    p.master_document?.google_search_tags,
+                )}
                 onChange={(e) => setField("app_keywords", strToArr(e.target.value))}
                 className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs font-mono"
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Alternative Names</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Alternative Names
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(
-                  p.master_document?.alternative_names && p.master_document.alternative_names.length > 0
+                  p.master_document?.alternative_names &&
+                    p.master_document.alternative_names.length > 0
                     ? p.master_document.alternative_names
-                    : (p.ai_understanding?.alternative_names || [])
+                    : p.ai_understanding?.alternative_names || [],
                 )}
                 onChange={(e) => {
                   const arr = strToArr(e.target.value);
@@ -869,7 +1093,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer Search Phrases</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Customer Search Phrases
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(p.master_document?.customer_search_phrases)}
@@ -883,7 +1109,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Synonyms</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Synonyms
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(p.master_document?.search_synonyms)}
@@ -897,7 +1125,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Related Search Terms</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Related Search Terms
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(p.master_document?.related_search_terms)}
@@ -911,7 +1141,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Common Misspellings</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Common Misspellings
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(p.master_document?.common_misspellings)}
@@ -925,7 +1157,9 @@ function RebuiltEditProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Showroom Search Index Tokens</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Showroom Search Index Tokens
+              </label>
               <textarea
                 rows={2}
                 value={arrToStr(p.master_document?.showroom_search_index)}

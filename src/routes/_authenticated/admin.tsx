@@ -3,7 +3,23 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Search, LayoutDashboard, Briefcase, Package, Layers, Users, FolderHeart, Mail, Activity, Sparkles, Wrench, Bell, X, AlertCircle, Trash2 } from "lucide-react";
+import {
+  Search,
+  LayoutDashboard,
+  Briefcase,
+  Package,
+  Layers,
+  Users,
+  FolderHeart,
+  Mail,
+  Activity,
+  Sparkles,
+  Wrench,
+  Bell,
+  X,
+  AlertCircle,
+  Trash2,
+} from "lucide-react";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -79,16 +95,66 @@ function AdminLayout() {
   }
 
   const tabs = [
-    { to: "/admin" as const, label: "Operations", icon: LayoutDashboard, active: pathname === "/admin" },
-    { to: "/admin/products" as const, label: "Products", icon: Package, active: pathname.startsWith("/admin/products") },
-    { to: "/admin/pipeline" as const, label: "Pipeline", icon: Activity, active: pathname.startsWith("/admin/pipeline") },
-    { to: "/admin/hierarchy" as const, label: "Hierarchy", icon: Layers, active: pathname.startsWith("/admin/hierarchy") },
-    { to: "/admin/ai-templates" as const, label: "AI Templates", icon: Sparkles, active: pathname.startsWith("/admin/ai-templates") },
-    { to: "/admin/diagnostics" as const, label: "Diagnostics", icon: Wrench, active: pathname.startsWith("/admin/diagnostics") },
-    { to: "/admin/customers" as const, label: "Customers", icon: Users, active: pathname.startsWith("/admin/customers") },
-    { to: "/admin/collections" as const, label: "Collections", icon: FolderHeart, active: pathname.startsWith("/admin/collections") },
-    { to: "/admin/email" as const, label: "Communication Center", icon: Mail, active: pathname.startsWith("/admin/email") },
-    { to: "/admin/business" as const, label: "Business", icon: Briefcase, active: pathname.startsWith("/admin/business") },
+    {
+      to: "/admin" as const,
+      label: "Operations",
+      icon: LayoutDashboard,
+      active: pathname === "/admin",
+    },
+    {
+      to: "/admin/products" as const,
+      label: "Products",
+      icon: Package,
+      active: pathname.startsWith("/admin/products"),
+    },
+    {
+      to: "/admin/pipeline" as const,
+      label: "Pipeline",
+      icon: Activity,
+      active: pathname.startsWith("/admin/pipeline"),
+    },
+    {
+      to: "/admin/hierarchy" as const,
+      label: "Hierarchy",
+      icon: Layers,
+      active: pathname.startsWith("/admin/hierarchy"),
+    },
+    {
+      to: "/admin/ai-templates" as const,
+      label: "AI Templates",
+      icon: Sparkles,
+      active: pathname.startsWith("/admin/ai-templates"),
+    },
+    {
+      to: "/admin/diagnostics" as const,
+      label: "Diagnostics",
+      icon: Wrench,
+      active: pathname.startsWith("/admin/diagnostics"),
+    },
+    {
+      to: "/admin/customers" as const,
+      label: "Customers",
+      icon: Users,
+      active: pathname.startsWith("/admin/customers"),
+    },
+    {
+      to: "/admin/collections" as const,
+      label: "Collections",
+      icon: FolderHeart,
+      active: pathname.startsWith("/admin/collections"),
+    },
+    {
+      to: "/admin/email" as const,
+      label: "Communication Center",
+      icon: Mail,
+      active: pathname.startsWith("/admin/email"),
+    },
+    {
+      to: "/admin/business" as const,
+      label: "Business",
+      icon: Briefcase,
+      active: pathname.startsWith("/admin/business"),
+    },
   ];
 
   return (
@@ -102,17 +168,22 @@ function AdminLayout() {
                 to={t.to}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition ${
                   t.active
-                    ? "bg-[#0F1115] text-[#D4AF37] border border-[#C5A059] shadow-sm font-bold"
-                    : "border border-[#E5E0D8] bg-white text-gray-700 hover:border-[#C5A059] hover:text-[#ea580c] font-semibold"
+                    ? "bg-primary text-canvas border border-primary shadow-sm font-bold"
+                    : "border border-border bg-surface-2 text-muted-foreground hover:border-primary/50 hover:text-foreground font-semibold"
                 }`}
               >
-                <t.icon className={`h-3.5 w-3.5 ${t.active ? "text-[#D4AF37]" : "text-gray-500"}`} />
+                <t.icon
+                  className={`h-3.5 w-3.5 ${t.active ? "text-canvas" : "text-muted-foreground"}`}
+                />
                 {t.label}
               </Link>
             ))}
           </div>
           <div className="relative ml-auto flex items-center gap-2">
-            <Link to="/" className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A059]/40 bg-[#0F1115] px-3.5 py-1.5 text-xs font-bold text-[#D4AF37] hover:bg-[#1A1D24] transition shrink-0 shadow-xs">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3.5 py-1.5 text-xs font-bold text-foreground hover:border-primary/50 hover:text-primary transition shrink-0 shadow-xs"
+            >
               <span>Storefront Feed</span>
             </Link>
             {/* Admin Notifications Bell */}
@@ -120,31 +191,46 @@ function AdminLayout() {
               <div className="relative">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative grid h-8 w-8 place-items-center rounded-full border border-[#C5A059]/40 bg-[#0F1115] text-[#D4AF37] transition hover:border-[#C5A059]"
+                  className="relative grid h-8 w-8 place-items-center rounded-full border border-border bg-surface-2 text-foreground transition hover:border-primary/50 hover:text-primary"
                 >
-                  <Bell className="h-3.5 w-3.5 text-[#D4AF37]" />
-                  {notifications.filter(n => n.status === "PENDING").length > 0 && (
-                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-[#ea580c] animate-pulse"></span>
+                  <Bell className="h-3.5 w-3.5" />
+                  {notifications.filter((n) => n.status === "PENDING").length > 0 && (
+                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
                   )}
                 </button>
 
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 rounded-lg border border-[#C5A059]/30 bg-[#121316] text-white shadow-2xl p-4 text-xs space-y-3 z-50">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                      <span className="font-bold text-[#D4AF37]">In-App Notifications</span>
-                      <button onClick={() => setShowNotifications(false)} className="text-gray-400 hover:text-white"><X className="h-4 w-4" /></button>
+                  <div className="absolute right-0 mt-2 w-80 rounded-lg border border-border bg-surface text-foreground shadow-2xl p-4 text-xs space-y-3 z-50">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <span className="font-bold text-foreground">In-App Notifications</span>
+                      <button
+                        onClick={() => setShowNotifications(false)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
 
                     <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                       {notifications.map((notif) => (
-                        <div key={notif.id} className="p-2 border border-white/10 rounded bg-white/5 flex gap-2 relative group text-left">
-                          <AlertCircle className="h-4 w-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                        <div
+                          key={notif.id}
+                          className="p-2 border border-border rounded-lg bg-surface-2 flex gap-2 relative group text-left"
+                        >
+                          <AlertCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-white truncate">{notif.subject || "Alert"}</div>
-                            <p className="text-[10px] text-gray-300 mt-0.5 leading-tight">{notif.body}</p>
+                            <div className="font-semibold text-foreground truncate">
+                              {notif.subject || "Alert"}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                              {notif.body}
+                            </p>
                           </div>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); clearNotification(notif.id); }}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearNotification(notif.id);
+                            }}
                             className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -152,29 +238,34 @@ function AdminLayout() {
                         </div>
                       ))}
                       {notifications.length === 0 && (
-                        <div className="text-gray-400 italic text-center py-4">No notifications yet.</div>
+                        <div className="text-gray-400 italic text-center py-4">
+                          No notifications yet.
+                        </div>
                       )}
                     </div>
                   </div>
                 )}
               </div>
             )}
-            <form onSubmit={onSearchCode} className="relative flex min-w-[200px] flex-1 sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter Product Code"
-              className="w-full rounded-md border border-[#E5E0D8] bg-white py-1.5 pl-8 pr-20 text-xs outline-none focus:border-[#C5A059]"
-            />
-            <button
-              disabled={searching}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm bg-[#0F1115] border border-[#C5A059]/40 px-2 py-1 text-[11px] font-bold text-[#D4AF37] hover:bg-[#1A1D24] disabled:opacity-60 transition"
+            <form
+              onSubmit={onSearchCode}
+              className="relative flex min-w-[200px] flex-1 sm:max-w-xs"
             >
-              {searching ? "…" : "Open"}
-            </button>
-          </form>
-        </div>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Enter Product Code"
+                className="w-full rounded-md border border-border bg-surface-2 text-foreground py-1.5 pl-8 pr-20 text-xs outline-none focus:border-primary"
+              />
+              <button
+                disabled={searching}
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-sm bg-primary px-2 py-1 text-[11px] font-bold text-canvas hover:bg-brand-orange-hover disabled:opacity-60 transition"
+              >
+                {searching ? "…" : "Open"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
       <Outlet />

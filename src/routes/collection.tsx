@@ -21,13 +21,28 @@ import {
   mergeGuestIntoUser,
   getUserItemRequirements,
   type ItemRequirements,
-  type CollectionV2
+  type CollectionV2,
 } from "@/lib/collection";
 import { getCanonicalProductSlug } from "@/lib/product-url";
 import { useAppSettings, waLink } from "@/lib/settings";
 import { getProductionOrigin } from "@/lib/origin";
 import { toast } from "sonner";
-import { MessageCircle, Share2, Trash2, Heart, ChevronDown, ChevronUp, Lock, RefreshCw, FileText, Phone, CheckCircle2, AlertCircle, History, Layers } from "lucide-react";
+import {
+  MessageCircle,
+  Share2,
+  Trash2,
+  Heart,
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  RefreshCw,
+  FileText,
+  Phone,
+  CheckCircle2,
+  AlertCircle,
+  History,
+  Layers,
+} from "lucide-react";
 import { publicImageUrl } from "@/components/ImageUploader";
 
 export const Route = createFileRoute("/collection")({
@@ -54,7 +69,7 @@ function CollectionPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [lastSubmittedRef, setLastSubmittedRef] = useState<string | null>(null);
-  
+
   // Custom double tab toggle views
   const [activeView, setActiveView] = useState<"collection" | "favorites">("collection");
   const [favoriteProducts, setFavoriteProducts] = useState<any[]>([]);
@@ -101,7 +116,9 @@ function CollectionPage() {
             id: batch.collectionData.id,
             user_id: batch.collectionData.user_id,
             name: batch.collectionData.name || "Project Workspace",
-            reference_number: (batch.collectionData as any).reference_number || generateCollectionReference(batch.collectionData.id),
+            reference_number:
+              (batch.collectionData as any).reference_number ||
+              generateCollectionReference(batch.collectionData.id),
             project_name: (batch.collectionData as any).project_name || null,
             status: (batch.collectionData as any).status || "Draft",
             is_locked: (batch.collectionData as any).is_locked ?? false,
@@ -124,9 +141,11 @@ function CollectionPage() {
             quantity: ci.quantity ?? savedReq.quantity ?? 1,
             unit: ci.unit || savedReq.unit || autoUnit,
             installation_location: ci.installation_location || savedReq.installation_location || "",
-            delivery_preference: ci.delivery_preference || savedReq.delivery_preference || "Deliver to Site",
-            installation_required: ci.installation_required || savedReq.installation_required || "Not Sure",
-            project_notes: ci.project_notes || savedReq.project_notes || ""
+            delivery_preference:
+              ci.delivery_preference || savedReq.delivery_preference || "Deliver to Site",
+            installation_required:
+              ci.installation_required || savedReq.installation_required || "Not Sure",
+            project_notes: ci.project_notes || savedReq.project_notes || "",
           };
         });
         setRequirementsMap(reqMap);
@@ -149,7 +168,7 @@ function CollectionPage() {
             installation_location: gi.installation_location || "",
             delivery_preference: gi.delivery_preference || "Deliver to Site",
             installation_required: gi.installation_required || "Not Sure",
-            project_notes: gi.project_notes || ""
+            project_notes: gi.project_notes || "",
           };
         });
         setRequirementsMap(reqMap);
@@ -158,7 +177,6 @@ function CollectionPage() {
 
     if (!loading) void load();
   }, [user, loading, refreshKey]);
-
 
   const handleRequirementChange = (productId: string, patch: Partial<ItemRequirements>) => {
     setRequirementsMap((prev) => {
@@ -216,7 +234,11 @@ function CollectionPage() {
 
       totalPrice += price * qty;
 
-      if (req.installation_required && req.installation_required !== "Not Sure" && req.installation_required !== "No, Supply Only") {
+      if (
+        req.installation_required &&
+        req.installation_required !== "Not Sure" &&
+        req.installation_required !== "No, Supply Only"
+      ) {
         installerRequestedCount++;
       }
 
@@ -237,7 +259,7 @@ function CollectionPage() {
       totalQtyString,
       installerRequestedCount,
       deliveryItemsCount,
-      itemCount: activeProducts.length
+      itemCount: activeProducts.length,
     };
   }, [products, favoriteProducts, activeView, requirementsMap]);
 
@@ -289,10 +311,12 @@ function CollectionPage() {
       setCollectionId(id);
     }
     const refNum = collectionData?.reference_number || generateCollectionReference(id || undefined);
-    const versionStr = collectionData?.version && collectionData.version > 1 ? ` (v${collectionData.version})` : "";
+    const versionStr =
+      collectionData?.version && collectionData.version > 1 ? ` (v${collectionData.version})` : "";
     const origin = getProductionOrigin();
     const singleCollectionUrl = id ? `${origin}/collection/${id}` : `${origin}/collection`;
-    const customerName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email || "Valued Client";
+    const customerName =
+      userProfile?.full_name || user?.user_metadata?.full_name || user?.email || "Valued Client";
     const projectName = collectionData?.project_name || collectionData?.name || "Showroom Project";
 
     // 1. Construct WhatsApp message synchronously (< 16ms)
@@ -308,7 +332,7 @@ function CollectionPage() {
       `*Project Collection Link:*`,
       `${singleCollectionUrl}`,
       "",
-      `*SELECTED PRODUCTS (${activeItems.length}):*`
+      `*SELECTED PRODUCTS (${activeItems.length}):*`,
     ];
 
     activeItems.forEach((p, idx) => {
@@ -317,11 +341,14 @@ function CollectionPage() {
       const unit = req.unit || detectProductUnit(p);
       const loc = req.installation_location ? ` | Loc: ${req.installation_location}` : "";
       const del = req.delivery_preference ? ` | Delivery: ${req.delivery_preference}` : "";
-      const inst = req.installation_required && req.installation_required !== "Not Sure" ? ` | Install: ${req.installation_required}` : "";
+      const inst =
+        req.installation_required && req.installation_required !== "Not Sure"
+          ? ` | Install: ${req.installation_required}`
+          : "";
       const notes = req.project_notes ? ` | Notes: ${req.project_notes}` : "";
 
       messageParts.push(
-        `${idx + 1}. *${p.name}* (Code: ${p.code}) — ${qty} ${unit}${loc}${del}${inst}${notes}`
+        `${idx + 1}. *${p.name}* (Code: ${p.code}) — ${qty} ${unit}${loc}${del}${inst}${notes}`,
       );
     });
 
@@ -331,7 +358,7 @@ function CollectionPage() {
       `Total Est. Quantity: ${summaryMetrics.totalQtyString}`,
       `Total Est. Value: ${summaryMetrics.totalPriceFormatted}`,
       `Delivery Items: ${summaryMetrics.deliveryItemsCount}`,
-      `Installer Service Requested: ${summaryMetrics.installerRequestedCount > 0 ? "Yes" : "No"}`
+      `Installer Service Requested: ${summaryMetrics.installerRequestedCount > 0 ? "Yes" : "No"}`,
     );
 
     const msg = messageParts.join("\n");
@@ -366,9 +393,11 @@ function CollectionPage() {
             await supabase.from("whatsapp_inquiries").insert({
               collection_id: targetId,
               customer_name: user.user_metadata?.full_name || user.email || "Customer",
-              customer_phone: userProfile?.phone_number || user.phone || user.user_metadata?.phone || "",
+              customer_phone:
+                userProfile?.phone_number || user.phone || user.user_metadata?.phone || "",
               customer_email: user.email ?? null,
-              whatsapp_number: userProfile?.phone_number || user.user_metadata?.whatsapp || user.phone || null,
+              whatsapp_number:
+                userProfile?.phone_number || user.user_metadata?.whatsapp || user.phone || null,
               inquiry_status: "NEW",
               status: "pending",
             } as never);
@@ -417,14 +446,15 @@ function CollectionPage() {
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Build your custom project bill of quantities, set specifications, and push directly to WhatsApp for rapid pricing.
+            Build your custom project bill of quantities, set specifications, and push directly to
+            WhatsApp for rapid pricing.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A059]/40 bg-[#0F1115] px-3.5 py-2 text-xs font-bold text-[#D4AF37] hover:bg-[#1A1D24] transition shrink-0 shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3.5 py-2 text-xs font-bold text-foreground hover:border-primary/50 hover:text-primary transition shrink-0 shadow-xs"
           >
             <span>Storefront Feed</span>
           </Link>
@@ -454,12 +484,15 @@ function CollectionPage() {
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-8 text-center space-y-4 max-w-lg mx-auto">
           <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400 mx-auto" />
           <div className="space-y-1">
-            <h2 className="font-display text-xl font-bold text-foreground">Quotation Request Submitted!</h2>
+            <h2 className="font-display text-xl font-bold text-foreground">
+              Quotation Request Submitted!
+            </h2>
             <p className="text-xs text-muted-foreground">
               Reference: <strong className="font-mono text-foreground">{lastSubmittedRef}</strong>
             </p>
             <p className="text-xs text-muted-foreground pt-1">
-              Your quotation request was saved to your permanent Collection History. Your active project workspace is now reset and ready for your next project quotation.
+              Your quotation request was saved to your permanent Collection History. Your active
+              project workspace is now reset and ready for your next project quotation.
             </p>
           </div>
 
@@ -502,9 +535,12 @@ function CollectionPage() {
         <div className="rounded-2xl border border-dashed border-border p-12 text-center space-y-4">
           <Layers className="h-12 w-12 text-muted-foreground/30 mx-auto" />
           <div className="space-y-1">
-            <h3 className="font-display text-lg font-semibold text-foreground">No Active Project Workspace</h3>
+            <h3 className="font-display text-lg font-semibold text-foreground">
+              No Active Project Workspace
+            </h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Explore our luxury surface catalogue and save products to build your project quotation.
+              Explore our luxury surface catalogue and save products to build your project
+              quotation.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -533,7 +569,10 @@ function CollectionPage() {
                 Selected Products ({products.length})
               </span>
               <span className="text-xs text-muted-foreground">
-                Est. Value: <strong className="text-foreground font-medium">{summaryMetrics.totalPriceFormatted}</strong>
+                Est. Value:{" "}
+                <strong className="text-foreground font-medium">
+                  {summaryMetrics.totalPriceFormatted}
+                </strong>
               </span>
             </div>
 
@@ -552,7 +591,11 @@ function CollectionPage() {
                   >
                     <div className="p-4 flex items-start gap-4">
                       <img
-                        src={publicImageUrl(product.generated_studio_image) || publicImageUrl(product.image_url) || ""}
+                        src={
+                          publicImageUrl(product.generated_studio_image) ||
+                          publicImageUrl(product.image_url) ||
+                          ""
+                        }
                         alt={product.name}
                         className="h-20 w-20 rounded-lg object-cover bg-muted border border-border/50 shrink-0"
                       />
@@ -567,7 +610,9 @@ function CollectionPage() {
                             >
                               {product.name}
                             </Link>
-                            <p className="text-xs text-muted-foreground font-mono">Code: {product.code}</p>
+                            <p className="text-xs text-muted-foreground font-mono">
+                              Code: {product.code}
+                            </p>
                           </div>
                           <button
                             onClick={() => promptRemoveProduct(product)}
@@ -582,7 +627,11 @@ function CollectionPage() {
                         <div className="flex flex-wrap items-center gap-3 pt-2">
                           <div className="flex items-center border border-border rounded-lg bg-surface-2 overflow-hidden">
                             <button
-                              onClick={() => handleRequirementChange(product.id, { quantity: Math.max(1, qty - 1) })}
+                              onClick={() =>
+                                handleRequirementChange(product.id, {
+                                  quantity: Math.max(1, qty - 1),
+                                })
+                              }
                               className="px-2.5 py-1 text-xs font-bold text-foreground hover:bg-card transition"
                             >
                               -
@@ -591,7 +640,9 @@ function CollectionPage() {
                               {qty}
                             </span>
                             <button
-                              onClick={() => handleRequirementChange(product.id, { quantity: qty + 1 })}
+                              onClick={() =>
+                                handleRequirementChange(product.id, { quantity: qty + 1 })
+                              }
                               className="px-2.5 py-1 text-xs font-bold text-foreground hover:bg-card transition"
                             >
                               +
@@ -600,7 +651,9 @@ function CollectionPage() {
 
                           <select
                             value={unit}
-                            onChange={(e) => handleRequirementChange(product.id, { unit: e.target.value })}
+                            onChange={(e) =>
+                              handleRequirementChange(product.id, { unit: e.target.value })
+                            }
                             className="rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium focus:outline-none"
                           >
                             <option value="Pieces">Pieces</option>
@@ -620,11 +673,19 @@ function CollectionPage() {
                         onClick={() => toggleExpand(product.id)}
                         className="text-muted-foreground hover:text-foreground flex items-center gap-1 font-medium"
                       >
-                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                        <span>{isExpanded ? "Hide Specifications" : "Set Installation & Delivery Specs"}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        )}
+                        <span>
+                          {isExpanded ? "Hide Specifications" : "Set Installation & Delivery Specs"}
+                        </span>
                       </button>
 
-                      {(req.installation_location || req.delivery_preference || req.project_notes) && (
+                      {(req.installation_location ||
+                        req.delivery_preference ||
+                        req.project_notes) && (
                         <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                           ✓ Specs Configured
                         </span>
@@ -643,7 +704,11 @@ function CollectionPage() {
                               type="text"
                               placeholder="e.g. Main Entrance Gate / Perimeter"
                               value={req.installation_location || ""}
-                              onChange={(e) => handleRequirementChange(product.id, { installation_location: e.target.value })}
+                              onChange={(e) =>
+                                handleRequirementChange(product.id, {
+                                  installation_location: e.target.value,
+                                })
+                              }
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
                             />
                           </div>
@@ -654,10 +719,16 @@ function CollectionPage() {
                             </label>
                             <select
                               value={req.delivery_preference || "Deliver to Site"}
-                              onChange={(e) => handleRequirementChange(product.id, { delivery_preference: e.target.value })}
+                              onChange={(e) =>
+                                handleRequirementChange(product.id, {
+                                  delivery_preference: e.target.value,
+                                })
+                              }
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
                             >
-                              <option value="Deliver to Site">Deliver to Site (Lagos/Nationwide)</option>
+                              <option value="Deliver to Site">
+                                Deliver to Site (Lagos/Nationwide)
+                              </option>
                               <option value="Self Pickup">Self Pickup from Showroom</option>
                             </select>
                           </div>
@@ -668,11 +739,17 @@ function CollectionPage() {
                             </label>
                             <select
                               value={req.installation_required || "Not Sure"}
-                              onChange={(e) => handleRequirementChange(product.id, { installation_required: e.target.value })}
+                              onChange={(e) =>
+                                handleRequirementChange(product.id, {
+                                  installation_required: e.target.value,
+                                })
+                              }
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
                             >
                               <option value="Not Sure">Not Sure (Need Advice)</option>
-                              <option value="Yes, Full Installation">Yes, Full Installation Required</option>
+                              <option value="Yes, Full Installation">
+                                Yes, Full Installation Required
+                              </option>
                               <option value="No, Supply Only">No, Supply Material Only</option>
                             </select>
                           </div>
@@ -685,7 +762,11 @@ function CollectionPage() {
                               type="text"
                               placeholder="e.g. 60x120cm size, bullnose edge"
                               value={req.project_notes || ""}
-                              onChange={(e) => handleRequirementChange(product.id, { project_notes: e.target.value })}
+                              onChange={(e) =>
+                                handleRequirementChange(product.id, {
+                                  project_notes: e.target.value,
+                                })
+                              }
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
                             />
                           </div>
@@ -715,11 +796,15 @@ function CollectionPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Est. Total Quantity:</span>
-                  <span className="font-semibold text-foreground">{summaryMetrics.totalQtyString}</span>
+                  <span className="font-semibold text-foreground">
+                    {summaryMetrics.totalQtyString}
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Delivery Services:</span>
-                  <span className="font-semibold text-foreground">{summaryMetrics.deliveryItemsCount} Items Configured</span>
+                  <span className="font-semibold text-foreground">
+                    {summaryMetrics.deliveryItemsCount} Items Configured
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Installer Services:</span>
@@ -729,8 +814,12 @@ function CollectionPage() {
                 </div>
 
                 <div className="border-t border-border pt-3 flex justify-between items-baseline">
-                  <span className="font-bold text-sm text-foreground">Est. Total Material Cost:</span>
-                  <span className="font-bold text-lg text-primary">{summaryMetrics.totalPriceFormatted}</span>
+                  <span className="font-bold text-sm text-foreground">
+                    Est. Total Material Cost:
+                  </span>
+                  <span className="font-bold text-lg text-primary">
+                    {summaryMetrics.totalPriceFormatted}
+                  </span>
                 </div>
               </div>
 
@@ -744,7 +833,8 @@ function CollectionPage() {
               </button>
 
               <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-                Submitting saves your project collection to your permanent History record and opens WhatsApp for direct pricing.
+                Submitting saves your project collection to your permanent History record and opens
+                WhatsApp for direct pricing.
               </p>
             </div>
           </div>
@@ -759,7 +849,8 @@ function CollectionPage() {
               <Phone className="h-8 w-8 text-primary mx-auto" />
               <h3 className="font-display text-lg font-bold text-foreground">Enter Phone Number</h3>
               <p className="text-xs text-muted-foreground">
-                Please provide a phone number so our sales team can attach your quotation to your project account.
+                Please provide a phone number so our sales team can attach your quotation to your
+                project account.
               </p>
             </div>
 
@@ -800,7 +891,9 @@ function CollectionPage() {
               <AlertCircle className="h-8 w-8 text-red-500 mx-auto" />
               <h3 className="font-display text-lg font-bold text-foreground">Remove Product?</h3>
               <p className="text-xs text-muted-foreground">
-                Are you sure you want to remove <strong className="text-foreground">{productToRemove.name}</strong> from your active project workspace?
+                Are you sure you want to remove{" "}
+                <strong className="text-foreground">{productToRemove.name}</strong> from your active
+                project workspace?
               </p>
             </div>
 

@@ -3,7 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Check, Sparkles, Upload, FileText, Globe, Search, ChevronDown, ChevronUp, Image, Layers, Cpu, ShieldCheck } from "lucide-react";
+import {
+  Check,
+  Sparkles,
+  Upload,
+  FileText,
+  Globe,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Image,
+  Layers,
+  Cpu,
+  ShieldCheck,
+} from "lucide-react";
 import { runProductPipeline } from "@/lib/ai-pipeline.functions";
 import { runProductDetailsEngine } from "@/lib/product-details.functions";
 import { generateStandaloneLifestyleImage } from "@/lib/lifestyle-image.functions";
@@ -43,7 +56,10 @@ function RebuiltNewProductPage() {
   const [runningPipeline, setRunningPipeline] = useState(false);
 
   // Photo Editor Modal State
-  const [editingImage, setEditingImage] = useState<{ url: string; target: "original" | "installed" } | null>(null);
+  const [editingImage, setEditingImage] = useState<{
+    url: string;
+    target: "original" | "installed";
+  } | null>(null);
 
   // Collapsible section toggles (Default Collapsed)
   const [showAdvancedAi, setShowAdvancedAi] = useState(false);
@@ -95,8 +111,12 @@ function RebuiltNewProductPage() {
     product_benefits: "",
   });
 
-  const arrToStr = (v: any) => (Array.isArray(v) ? v.join(", ") : v ?? "");
-  const strToArr = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
+  const arrToStr = (v: any) => (Array.isArray(v) ? v.join(", ") : (v ?? ""));
+  const strToArr = (v: string) =>
+    v
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   useEffect(() => {
     (async () => {
@@ -125,8 +145,14 @@ function RebuiltNewProductPage() {
   }, [type_id]);
 
   const filteredCats = useMemo(() => cats.filter((c) => c.type_id === type_id), [cats, type_id]);
-  const filteredSubs = useMemo(() => subs.filter((s) => s.category_id === category_id), [subs, category_id]);
-  const filteredFams = useMemo(() => fams.filter((f) => f.subcategory_id === subcategory_id), [fams, subcategory_id]);
+  const filteredSubs = useMemo(
+    () => subs.filter((s) => s.category_id === category_id),
+    [subs, category_id],
+  );
+  const filteredFams = useMemo(
+    () => fams.filter((f) => f.subcategory_id === subcategory_id),
+    [fams, subcategory_id],
+  );
 
   // Description Handlers (Independent)
   const handleDescriptionChange = (val: string) => {
@@ -153,32 +179,39 @@ function RebuiltNewProductPage() {
     }
     setGeneratingDetails(true);
     try {
-      const slugBase = form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const slugBase = form.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
       const tempSlug = `draft-${slugBase}-${Math.random().toString(36).slice(2, 6)}`;
-      
-      const { data: tempProduct, error: tempErr } = await supabase.from("products").insert({
-        name: form.name.trim(),
-        code: form.code || previewCode || "TEMP-001",
-        type_id: type_id || null,
-        category_id: category_id || null,
-        subcategory_id: subcategory_id || null,
-        family_id: family_id || null,
-        production_name: form.production_name || null,
-        finish_name: form.finish_name || null,
-        brand: form.brand || null,
-        color: form.color || null,
-        material: form.material || null,
-        size: form.size || null,
-        price: Number(form.price) || 0,
-        original_price: form.original_price ? Number(form.original_price) : null,
-        pricing_unit: form.pricing_unit || "piece",
-        differentiator_type: form.differentiator_type || null,
-        differentiator_note: (form.differentiator_note || "").trim() || null,
-        status: "draft",
-        processing_state: "pending",
-        slug: tempSlug,
-        image_url: originalPath || null
-      } as any).select("id").single();
+
+      const { data: tempProduct, error: tempErr } = await supabase
+        .from("products")
+        .insert({
+          name: form.name.trim(),
+          code: form.code || previewCode || "TEMP-001",
+          type_id: type_id || null,
+          category_id: category_id || null,
+          subcategory_id: subcategory_id || null,
+          family_id: family_id || null,
+          production_name: form.production_name || null,
+          finish_name: form.finish_name || null,
+          brand: form.brand || null,
+          color: form.color || null,
+          material: form.material || null,
+          size: form.size || null,
+          price: Number(form.price) || 0,
+          original_price: form.original_price ? Number(form.original_price) : null,
+          pricing_unit: form.pricing_unit || "piece",
+          differentiator_type: form.differentiator_type || null,
+          differentiator_note: (form.differentiator_note || "").trim() || null,
+          status: "draft",
+          processing_state: "pending",
+          slug: tempSlug,
+          image_url: originalPath || null,
+        } as any)
+        .select("id")
+        .single();
 
       if (tempErr || !tempProduct?.id) {
         throw new Error(tempErr?.message || "Failed to initialize temporary draft");
@@ -193,7 +226,8 @@ function RebuiltNewProductPage() {
           setStructuredData(d.structured_data || res.product?.structured_data);
         }
 
-        const prodDesc = d.short_description || d.generated_description || res.productDescription || "";
+        const prodDesc =
+          d.short_description || d.generated_description || res.productDescription || "";
         const seoDesc = d.seo_description || d.meta_description || res.seoDescription || "";
         const seoKw = arrToStr(d.seo_keywords);
         const searchKw = arrToStr(d.search_keywords || res.product?.app_keywords);
@@ -210,7 +244,10 @@ function RebuiltNewProductPage() {
         setForm((prev) => ({
           ...prev,
           description: prodDesc || prev.description,
-          seo_title: d.seo_title || prev.seo_title || (prev.name ? `${prev.name} | Apex Security Nigeria` : ""),
+          seo_title:
+            d.seo_title ||
+            prev.seo_title ||
+            (prev.name ? `${prev.name} | Apex Security Nigeria` : ""),
           seo_description: seoDesc || prev.seo_description,
           seo_keywords: seoKw || prev.seo_keywords,
           canonical_slug: d.canonical_slug || prev.canonical_slug || slugify(prev.name),
@@ -227,9 +264,19 @@ function RebuiltNewProductPage() {
         }));
 
         if (Array.isArray(d.faq) && d.faq.length > 0) {
-          setFaqs(d.faq.map((item: any) => ({ question: String(item.question || ""), answer: String(item.answer || "") })));
+          setFaqs(
+            d.faq.map((item: any) => ({
+              question: String(item.question || ""),
+              answer: String(item.answer || ""),
+            })),
+          );
         } else if (Array.isArray(res.product?.faq) && res.product.faq.length > 0) {
-          setFaqs((res.product.faq as any[]).map((item: any) => ({ question: String(item.question || ""), answer: String(item.answer || "") })));
+          setFaqs(
+            (res.product.faq as any[]).map((item: any) => ({
+              question: String(item.question || ""),
+              answer: String(item.answer || ""),
+            })),
+          );
         }
 
         toast.success("Engine 1: Product details & search intelligence generated!");
@@ -254,26 +301,33 @@ function RebuiltNewProductPage() {
     }
     setGeneratingLifestyle(true);
     try {
-      const slugBase = (form.name || "installed").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const slugBase = (form.name || "installed")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
       const tempSlug = `draft-img-${slugBase}-${Math.random().toString(36).slice(2, 6)}`;
 
-      const { data: tempProduct, error: tempErr } = await supabase.from("products").insert({
-        name: form.name.trim() || "Sample Product",
-        code: form.code || previewCode || "TEMP-002",
-        type_id: type_id || null,
-        category_id: category_id || null,
-        subcategory_id: subcategory_id || null,
-        family_id: family_id || null,
-        production_name: form.production_name || null,
-        finish_name: form.finish_name || null,
-        brand: form.brand || null,
-        size: form.size || null,
-        price: Number(form.price) || 0,
-        status: "draft",
-        processing_state: "pending",
-        slug: tempSlug,
-        image_url: originalPath
-      } as any).select("id").single();
+      const { data: tempProduct, error: tempErr } = await supabase
+        .from("products")
+        .insert({
+          name: form.name.trim() || "Sample Product",
+          code: form.code || previewCode || "TEMP-002",
+          type_id: type_id || null,
+          category_id: category_id || null,
+          subcategory_id: subcategory_id || null,
+          family_id: family_id || null,
+          production_name: form.production_name || null,
+          finish_name: form.finish_name || null,
+          brand: form.brand || null,
+          size: form.size || null,
+          price: Number(form.price) || 0,
+          status: "draft",
+          processing_state: "pending",
+          slug: tempSlug,
+          image_url: originalPath,
+        } as any)
+        .select("id")
+        .single();
 
       if (tempErr || !tempProduct?.id) {
         throw new Error(tempErr?.message || "Failed to create draft for lifestyle generation");
@@ -309,7 +363,9 @@ function RebuiltNewProductPage() {
   // CREATE PRODUCT HANDLER (No Lost Data)
   const create = async (targetStatus?: string) => {
     if (!type_id || !category_id || !subcategory_id || !family_id) {
-      toast.error("Please complete the classification hierarchy (Type, Category, Subcategory, Family Group).");
+      toast.error(
+        "Please complete the classification hierarchy (Type, Category, Subcategory, Family Group).",
+      );
       return;
     }
     if (!form.name.trim()) return toast.error("Product name is required.");
@@ -336,21 +392,39 @@ function RebuiltNewProductPage() {
     const finalSeoDesc = form.seo_description.trim() || null;
 
     const masterDoc = {
-      alternative_names: altNamesArray.length > 0 ? altNamesArray : (aiIntelligence?.alternative_names || []),
-      customer_search_phrases: custPhrasesArray.length > 0 ? custPhrasesArray : (aiIntelligence?.customer_search_phrases || []),
-      search_synonyms: searchSynsArray.length > 0 ? searchSynsArray : (aiIntelligence?.search_synonyms || []),
-      related_search_terms: relTermsArray.length > 0 ? relTermsArray : (aiIntelligence?.related_search_terms || []),
-      common_misspellings: misspellingsArray.length > 0 ? misspellingsArray : (aiIntelligence?.common_misspellings || []),
-      product_highlights: highlightsArray.length > 0 ? highlightsArray : (aiIntelligence?.product_highlights || []),
-      product_features: featuresArray.length > 0 ? featuresArray : (aiIntelligence?.product_features || []),
-      product_benefits: benefitsArray.length > 0 ? benefitsArray : (aiIntelligence?.product_benefits || []),
+      alternative_names:
+        altNamesArray.length > 0 ? altNamesArray : aiIntelligence?.alternative_names || [],
+      customer_search_phrases:
+        custPhrasesArray.length > 0
+          ? custPhrasesArray
+          : aiIntelligence?.customer_search_phrases || [],
+      search_synonyms:
+        searchSynsArray.length > 0 ? searchSynsArray : aiIntelligence?.search_synonyms || [],
+      related_search_terms:
+        relTermsArray.length > 0 ? relTermsArray : aiIntelligence?.related_search_terms || [],
+      common_misspellings:
+        misspellingsArray.length > 0
+          ? misspellingsArray
+          : aiIntelligence?.common_misspellings || [],
+      product_highlights:
+        highlightsArray.length > 0 ? highlightsArray : aiIntelligence?.product_highlights || [],
+      product_features:
+        featuresArray.length > 0 ? featuresArray : aiIntelligence?.product_features || [],
+      product_benefits:
+        benefitsArray.length > 0 ? benefitsArray : aiIntelligence?.product_benefits || [],
       google_search_tags: aiIntelligence?.google_search_tags || [],
       google_local_search_terms: aiIntelligence?.google_local_search_terms || [],
       location_keywords: aiIntelligence?.location_keywords || [],
-      showroom_search_index: showroomIndexArray.length > 0 ? showroomIndexArray : (aiIntelligence?.showroom_search_index || []),
-      search_keywords: searchKeywordsArray.length > 0 ? searchKeywordsArray : (aiIntelligence?.search_keywords || []),
+      showroom_search_index:
+        showroomIndexArray.length > 0
+          ? showroomIndexArray
+          : aiIntelligence?.showroom_search_index || [],
+      search_keywords:
+        searchKeywordsArray.length > 0
+          ? searchKeywordsArray
+          : aiIntelligence?.search_keywords || [],
       seo_keywords: seoKeywordsArray,
-      faq: faqs.length > 0 ? faqs : (aiIntelligence?.faq || []),
+      faq: faqs.length > 0 ? faqs : aiIntelligence?.faq || [],
       open_graph_title: form.seo_title.trim() || aiIntelligence?.open_graph_title || "",
       open_graph_description: finalSeoDesc || aiIntelligence?.open_graph_description || "",
       canonical_slug: finalCanonicalSlug,
@@ -403,14 +477,15 @@ function RebuiltNewProductPage() {
       featured_feed: form.featured_feed,
       hidden: form.hidden,
       short_description: finalProductDesc,
-      generated_description: form.description.trim() || aiIntelligence?.generated_description || null,
+      generated_description:
+        form.description.trim() || aiIntelligence?.generated_description || null,
       seo_title: form.seo_title.trim() || null,
       seo_description: finalSeoDesc,
       seo_keywords: seoKeywordsArray,
       canonical_slug: finalCanonicalSlug,
       master_document: masterDoc,
       ai_understanding: masterDoc,
-      faq: faqs.length > 0 ? faqs : (aiIntelligence?.faq || null),
+      faq: faqs.length > 0 ? faqs : aiIntelligence?.faq || null,
       structured_data: structuredData || aiIntelligence?.structured_data || null,
       app_keywords: finalSearchKeywords,
       app_search_keywords: finalSearchKeywords,
@@ -422,36 +497,48 @@ function RebuiltNewProductPage() {
       generated_installed_image: installedPath || null,
     };
 
-    const { data, error } = await supabase.from("products").insert(payload as any).select("id").single();
-    
-    if (error) { 
-      setSaving(false); 
-      return toast.error(error.message); 
+    const { data, error } = await supabase
+      .from("products")
+      .insert(payload as any)
+      .select("id")
+      .single();
+
+    if (error) {
+      setSaving(false);
+      return toast.error(error.message);
     }
 
     if (data?.id) {
       const assetRows = [
-        ...(originalPath ? [{
-          product_id: data.id,
-          asset_type: "original",
-          asset_url: originalPath,
-          is_primary: true,
-          generated_by_ai: false,
-        }] : []),
-        ...(installedPath ? [{
-          product_id: data.id,
-          asset_type: "installed",
-          asset_url: installedPath,
-          is_primary: false,
-          generated_by_ai: true,
-        }] : []),
+        ...(originalPath
+          ? [
+              {
+                product_id: data.id,
+                asset_type: "original",
+                asset_url: originalPath,
+                is_primary: true,
+                generated_by_ai: false,
+              },
+            ]
+          : []),
+        ...(installedPath
+          ? [
+              {
+                product_id: data.id,
+                asset_type: "installed",
+                asset_url: installedPath,
+                is_primary: false,
+                generated_by_ai: true,
+              },
+            ]
+          : []),
         ...installationPaths.map((pUrl) => ({
           product_id: data.id,
           asset_type: "installed",
           asset_url: pUrl,
           is_primary: false,
           generated_by_ai: false,
-        }))
+        })),
       ];
 
       if (assetRows.length > 0) {
@@ -473,8 +560,12 @@ function RebuiltNewProductPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground uppercase">Upload New Product</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Build V3 — Universal AI Operating System Architecture</p>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground uppercase">
+            Upload New Product
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Build V3 — Universal AI Operating System Architecture
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -498,54 +589,82 @@ function RebuiltNewProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <Layers className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 1 — Product Information</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 1 — Product Information
+          </h2>
         </div>
 
         {/* Classification Hierarchy */}
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Type *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Type *
+            </label>
             <select
               value={type_id}
-              onChange={(e) => { setType(e.target.value); setCat(""); setSub(""); setFam(""); }}
+              onChange={(e) => {
+                setType(e.target.value);
+                setCat("");
+                setSub("");
+                setFam("");
+              }}
               className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"
             >
               <option value="">Select Type…</option>
               {types.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Category *
+            </label>
             <select
               value={category_id}
-              onChange={(e) => { setCat(e.target.value); setSub(""); setFam(""); }}
+              onChange={(e) => {
+                setCat(e.target.value);
+                setSub("");
+                setFam("");
+              }}
               disabled={!type_id}
               className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs disabled:opacity-50"
             >
               <option value="">Select Category…</option>
               {filteredCats.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subcategory *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Subcategory *
+            </label>
             <select
               value={subcategory_id}
-              onChange={(e) => { setSub(e.target.value); setFam(""); }}
+              onChange={(e) => {
+                setSub(e.target.value);
+                setFam("");
+              }}
               disabled={!category_id}
               className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs disabled:opacity-50"
             >
               <option value="">Select Subcategory…</option>
               {filteredSubs.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Family Group *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Family Group *
+            </label>
             <select
               value={family_id}
               onChange={(e) => setFam(e.target.value)}
@@ -554,7 +673,9 @@ function RebuiltNewProductPage() {
             >
               <option value="">Select Family…</option>
               {filteredFams.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
               ))}
             </select>
           </div>
@@ -563,7 +684,9 @@ function RebuiltNewProductPage() {
         {/* Essential Product Fields */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="sm:col-span-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Name *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Name *
+            </label>
             <input
               type="text"
               placeholder="e.g. Statuario White Polished Porcelain Tile"
@@ -573,7 +696,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Code</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Product Code
+            </label>
             <input
               type="text"
               placeholder={previewCode ? `Auto: ${previewCode}` : "Code"}
@@ -586,7 +711,9 @@ function RebuiltNewProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Brand</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Brand
+            </label>
             <input
               type="text"
               placeholder="e.g. Virony / Royal"
@@ -596,7 +723,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price (NGN) *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Price (NGN) *
+            </label>
             <input
               type="number"
               value={form.price}
@@ -605,7 +734,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Original Price (NGN)</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Original Price (NGN)
+            </label>
             <input
               type="number"
               placeholder="Optional regular price"
@@ -615,7 +746,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pricing Unit *</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Pricing Unit *
+            </label>
             <select
               value={form.pricing_unit}
               onChange={(e) => setForm((f) => ({ ...f, pricing_unit: e.target.value }))}
@@ -635,7 +768,9 @@ function RebuiltNewProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Size / Dimension</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Size / Dimension
+            </label>
             <input
               type="text"
               placeholder="e.g. 80x50 cm"
@@ -645,7 +780,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Finish</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Finish
+            </label>
             <input
               type="text"
               placeholder="e.g. Brushed / Nano Matte"
@@ -655,7 +792,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Material</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Material
+            </label>
             <input
               type="text"
               placeholder="e.g. Stainless Steel 304 / Ceramic"
@@ -665,7 +804,9 @@ function RebuiltNewProductPage() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Color</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Color
+            </label>
             <input
               type="text"
               placeholder="e.g. Matte Black / Gunmetal"
@@ -678,7 +819,9 @@ function RebuiltNewProductPage() {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Differentiator Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Differentiator Type
+            </label>
             <select
               value={form.differentiator_type}
               onChange={(e) => setForm((f) => ({ ...f, differentiator_type: e.target.value }))}
@@ -700,8 +843,12 @@ function RebuiltNewProductPage() {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Differentiator Note</label>
-              <span className="text-[9px] text-muted-foreground">{(form.differentiator_note || "").length}/80</span>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Differentiator Note
+              </label>
+              <span className="text-[9px] text-muted-foreground">
+                {(form.differentiator_note || "").length}/80
+              </span>
             </div>
             <input
               type="text"
@@ -715,7 +862,9 @@ function RebuiltNewProductPage() {
         </div>
 
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Description</label>
+          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Product Description
+          </label>
           <textarea
             rows={3}
             placeholder="Detailed description of product features, specifications, applications..."
@@ -730,36 +879,56 @@ function RebuiltNewProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <Image className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 2 — Images</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 2 — Images
+          </h2>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Original Manufacturer Image (FIXED SOURCE OF TRUTH) */}
           <div className="space-y-3 bg-muted/20 border border-border p-4 rounded-xl">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600">Original Manufacturer Image *</label>
-              <span className="text-[10px] text-muted-foreground font-semibold">Source of Truth</span>
+              <label className="text-xs font-bold uppercase tracking-wider text-primary">
+                Original Manufacturer Image *
+              </label>
+              <span className="text-[10px] text-muted-foreground font-semibold">
+                Source of Truth
+              </span>
             </div>
             {originalPath ? (
               <ImageTile
                 url={publicImageUrl(originalPath) || originalPath}
                 onDelete={() => setOriginalPath(null)}
-                onEdit={() => setEditingImage({ url: publicImageUrl(originalPath) || originalPath, target: "original" })}
+                onEdit={() =>
+                  setEditingImage({
+                    url: publicImageUrl(originalPath) || originalPath,
+                    target: "original",
+                  })
+                }
                 badge="Original Source of Truth"
               />
             ) : (
-              <ImageUploader multiple={false} onUploaded={(paths) => setOriginalPath(paths[0])} label="Upload Original Product Image" />
+              <ImageUploader
+                multiple={false}
+                onUploaded={(paths) => setOriginalPath(paths[0])}
+                label="Upload Original Product Image"
+              />
             )}
             <p className="text-[10px] text-muted-foreground leading-relaxed">
-              This fixed original manufacturer image is the single source of truth for the product and is never overwritten or turned into a carousel.
+              This fixed original manufacturer image is the single source of truth for the product
+              and is never overwritten or turned into a carousel.
             </p>
           </div>
 
           {/* Installation Images (MULTIPLE SWITCHABLE GALLERY) */}
           <div className="space-y-3 bg-muted/20 border border-border p-4 rounded-xl">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-amber-600">Installation Gallery ({installationPaths.length + (installedPath ? 1 : 0)})</label>
-              <span className="text-[10px] text-muted-foreground font-semibold">Multiple Switchable Images</span>
+              <label className="text-xs font-bold uppercase tracking-wider text-primary">
+                Installation Gallery ({installationPaths.length + (installedPath ? 1 : 0)})
+              </label>
+              <span className="text-[10px] text-muted-foreground font-semibold">
+                Multiple Switchable Images
+              </span>
             </div>
 
             {/* List of Installation Images */}
@@ -768,7 +937,12 @@ function RebuiltNewProductPage() {
                 <ImageTile
                   url={publicImageUrl(installedPath) || installedPath}
                   onDelete={() => setInstalledPath(null)}
-                  onEdit={() => setEditingImage({ url: publicImageUrl(installedPath) || installedPath, target: "installed" })}
+                  onEdit={() =>
+                    setEditingImage({
+                      url: publicImageUrl(installedPath) || installedPath,
+                      target: "installed",
+                    })
+                  }
                   badge="Primary Installed Scene"
                 />
               )}
@@ -785,7 +959,9 @@ function RebuiltNewProductPage() {
             <div className="space-y-2 pt-2 border-t border-border">
               <ImageUploader
                 multiple={true}
-                onUploaded={(paths) => setInstallationPaths((prev) => Array.from(new Set([...prev, ...paths])))}
+                onUploaded={(paths) =>
+                  setInstallationPaths((prev) => Array.from(new Set([...prev, ...paths])))
+                }
                 label="Add Installation Images to Gallery"
               />
 
@@ -796,7 +972,9 @@ function RebuiltNewProductPage() {
                 className="w-full flex items-center justify-center gap-2 rounded border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
-                {generatingLifestyle ? "Engine 2 Generating Installed Image…" : "Generate AI Installed Image (Engine 2)"}
+                {generatingLifestyle
+                  ? "Engine 2 Generating Installed Image…"
+                  : "Generate AI Installed Image (Engine 2)"}
               </button>
             </div>
           </div>
@@ -807,7 +985,9 @@ function RebuiltNewProductPage() {
       <section className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 3 — Publishing Settings</h2>
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+            Section 3 — Publishing Settings
+          </h2>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -817,10 +997,14 @@ function RebuiltNewProductPage() {
               onClick={() => setIsAiMode(!isAiMode)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${isAiMode ? "bg-primary" : "bg-muted"}`}
             >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${isAiMode ? "translate-x-6" : "translate-x-1"}`} />
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${isAiMode ? "translate-x-6" : "translate-x-1"}`}
+              />
             </button>
             <span className="text-xs font-semibold text-foreground">
-              {isAiMode ? "AI Mode Active (Auto Intelligence Routing)" : "Manual Mode (Direct Metadata Entry)"}
+              {isAiMode
+                ? "AI Mode Active (Auto Intelligence Routing)"
+                : "Manual Mode (Direct Metadata Entry)"}
             </span>
           </div>
 
@@ -829,7 +1013,7 @@ function RebuiltNewProductPage() {
               type="button"
               onClick={() => create("draft")}
               disabled={saving}
-              className="rounded-lg border border-[#E5E0D8] bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:border-[#C5A059] transition"
+              className="rounded-lg border border-border bg-surface-2 px-4 py-2 text-xs font-semibold text-foreground hover:border-primary/50 hover:text-primary transition"
             >
               Save Draft
             </button>
@@ -837,7 +1021,7 @@ function RebuiltNewProductPage() {
               type="button"
               onClick={() => create("published")}
               disabled={saving}
-              className="rounded-lg bg-[#0F1115] border border-[#C5A059]/50 px-6 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#1A1D24] hover:text-[#D4AF37] transition shadow-md"
+              className="rounded-lg bg-primary border border-primary px-6 py-2 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover transition shadow-md"
             >
               {saving ? "Publishing…" : "Publish Product"}
             </button>
@@ -854,10 +1038,18 @@ function RebuiltNewProductPage() {
         >
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 4 — Advanced AI Operations</h2>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">Engine 1 & Engine 2</span>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 4 — Advanced AI Operations
+            </h2>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">
+              Engine 1 & Engine 2
+            </span>
           </div>
-          {showAdvancedAi ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showAdvancedAi ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showAdvancedAi && (
@@ -880,7 +1072,9 @@ function RebuiltNewProductPage() {
                 className="flex items-center justify-center gap-2 rounded border border-primary/40 bg-primary/10 px-4 py-3 text-xs font-bold text-primary hover:bg-primary/20 transition disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
-                {generatingLifestyle ? "Generating Installed Image…" : "Generate Installed Image (Engine 2)"}
+                {generatingLifestyle
+                  ? "Generating Installed Image…"
+                  : "Generate Installed Image (Engine 2)"}
               </button>
 
               <button
@@ -898,17 +1092,23 @@ function RebuiltNewProductPage() {
             <div className="rounded-lg border border-border bg-background p-3 text-xs space-y-2 font-mono text-muted-foreground">
               <div className="flex items-center justify-between text-foreground font-semibold">
                 <span>AI Pipeline Execution Log</span>
-                <span className="text-[10px] text-primary">{aiIntelligence ? "Payload Received" : "Idle"}</span>
+                <span className="text-[10px] text-primary">
+                  {aiIntelligence ? "Payload Received" : "Idle"}
+                </span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                {aiIntelligence ? `Generated title: "${aiIntelligence.seo_title || "OK"}" | Description length: ${(form.description || "").length} chars` : "No AI execution log generated yet. Click above to run Engine 1 or Engine 2."}
+                {aiIntelligence
+                  ? `Generated title: "${aiIntelligence.seo_title || "OK"}" | Description length: ${(form.description || "").length} chars`
+                  : "No AI execution log generated yet. Click above to run Engine 1 or Engine 2."}
               </p>
             </div>
 
             {/* Generated Highlights, Features & Benefits */}
             <div className="grid gap-3 sm:grid-cols-3 pt-2">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Highlights</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Highlights
+                </label>
                 <textarea
                   rows={3}
                   value={form.product_highlights}
@@ -918,7 +1118,9 @@ function RebuiltNewProductPage() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Features</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Features
+                </label>
                 <textarea
                   rows={3}
                   value={form.product_features}
@@ -928,7 +1130,9 @@ function RebuiltNewProductPage() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Product Benefits</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Product Benefits
+                </label>
                 <textarea
                   rows={3}
                   value={form.product_benefits}
@@ -957,9 +1161,14 @@ function RebuiltNewProductPage() {
               {faqs.length > 0 ? (
                 <div className="space-y-3">
                   {faqs.map((item, idx) => (
-                    <div key={idx} className="rounded-lg border border-border bg-background p-3 space-y-2">
+                    <div
+                      key={idx}
+                      className="rounded-lg border border-border bg-background p-3 space-y-2"
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase text-primary">Question #{idx + 1}</span>
+                        <span className="text-[10px] font-bold uppercase text-primary">
+                          Question #{idx + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => setFaqs((prev) => prev.filter((_, i) => i !== idx))}
@@ -994,7 +1203,9 @@ function RebuiltNewProductPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic py-1">No FAQs generated yet. Run Engine 1 to populate 2–3 product-specific questions.</p>
+                <p className="text-xs text-muted-foreground italic py-1">
+                  No FAQs generated yet. Run Engine 1 to populate 2–3 product-specific questions.
+                </p>
               )}
             </div>
           </div>
@@ -1010,15 +1221,23 @@ function RebuiltNewProductPage() {
         >
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 5 — Google SEO & Metadata</h2>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 5 — Google SEO & Metadata
+            </h2>
           </div>
-          {showSeoSection ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showSeoSection ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showSeoSection && (
           <div className="p-5 border-t border-border space-y-4 bg-muted/10">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Title</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                SEO Title
+              </label>
               <input
                 type="text"
                 value={form.seo_title}
@@ -1028,7 +1247,9 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Description</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                SEO Description
+              </label>
               <textarea
                 rows={3}
                 placeholder="Google SERP snippet description..."
@@ -1040,7 +1261,9 @@ function RebuiltNewProductPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">SEO Keywords (Comma Separated)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  SEO Keywords (Comma Separated)
+                </label>
                 <input
                   type="text"
                   value={form.seo_keywords}
@@ -1049,7 +1272,9 @@ function RebuiltNewProductPage() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Canonical Slug</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Canonical Slug
+                </label>
                 <input
                   type="text"
                   value={form.canonical_slug}
@@ -1071,16 +1296,26 @@ function RebuiltNewProductPage() {
         >
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-primary" />
-            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">Section 6 — Search Intelligence Index</h2>
-            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">Showroom & Full Text</span>
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground">
+              Section 6 — Search Intelligence Index
+            </h2>
+            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono">
+              Showroom & Full Text
+            </span>
           </div>
-          {showSearchSection ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {showSearchSection ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
 
         {showSearchSection && (
           <div className="p-5 border-t border-border space-y-4 bg-muted/10">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Search Keywords (App Index)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Search Keywords (App Index)
+              </label>
               <textarea
                 rows={2}
                 value={form.search_keywords}
@@ -1090,7 +1325,9 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Alternative Names</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Alternative Names
+              </label>
               <textarea
                 rows={2}
                 value={form.alternative_names}
@@ -1100,17 +1337,23 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer Search Phrases</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Customer Search Phrases
+              </label>
               <textarea
                 rows={2}
                 value={form.customer_search_phrases}
-                onChange={(e) => setForm((f) => ({ ...f, customer_search_phrases: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, customer_search_phrases: e.target.value }))
+                }
                 className="mt-1 w-full rounded-md border border-input bg-background p-2 text-xs"
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Synonyms</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Synonyms
+              </label>
               <textarea
                 rows={2}
                 value={form.search_synonyms}
@@ -1120,7 +1363,9 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Related Search Terms</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Related Search Terms
+              </label>
               <textarea
                 rows={2}
                 value={form.related_search_terms}
@@ -1130,7 +1375,9 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Common Misspellings</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Common Misspellings
+              </label>
               <textarea
                 rows={2}
                 value={form.common_misspellings}
@@ -1140,7 +1387,9 @@ function RebuiltNewProductPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Showroom Search Index Tokens</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Showroom Search Index Tokens
+              </label>
               <textarea
                 rows={2}
                 value={form.showroom_search_index}

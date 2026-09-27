@@ -23,6 +23,7 @@ export type ProductRow = {
   material: string | null;
   finish: string | null;
   app_keywords: string[] | null;
+  white_image_background?: boolean | null;
   featured_feed?: boolean | null;
   featured_homepage?: boolean | null;
   created_at?: string | null;
@@ -32,7 +33,7 @@ export type ProductRow = {
 export type TaxonomyNode = { id: string; name: string; slug: string };
 
 const PRODUCT_FIELDS =
-  "id,slug,name,code,price,original_price,pricing_unit,differentiator_type,differentiator_note,brand,image_url,generated_studio_image,generated_installed_image,short_description,family_id,type_id,category_id,subcategory_id,color,material,finish,app_keywords,featured_feed,featured_homepage,created_at";
+  "id,slug,name,code,price,original_price,pricing_unit,differentiator_type,differentiator_note,brand,image_url,generated_studio_image,generated_installed_image,short_description,family_id,type_id,category_id,subcategory_id,color,material,finish,app_keywords,white_image_background,featured_feed,featured_homepage,created_at";
 
 export type FeedHeroItem = {
   id: string;

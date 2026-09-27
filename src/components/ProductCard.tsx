@@ -82,17 +82,25 @@ export function ProductCard({ product }: { product: ProductRow }) {
         />
       </button>
 
-      {/* Pristine White Studio Vitrine Stage for maximum hardware photographic visibility */}
+      {/* Product Image Stage: Studio Vitrine (White) or Natural Presentation */}
       <Link
         to="/product/$slug"
         params={{ slug: getCanonicalProductSlug(product) }}
-        className="block aspect-square overflow-hidden bg-white relative flex items-center justify-center p-3"
+        className={`block aspect-square overflow-hidden relative flex items-center justify-center ${
+          product.white_image_background !== false
+            ? "bg-white p-3"
+            : "bg-surface-2"
+        }`}
       >
         <img
           src={img}
           alt={product.name}
           loading="lazy"
-          className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-105"
+          className={`h-full w-full transition-transform duration-700 ease-out group-hover:scale-105 ${
+            product.white_image_background !== false
+              ? "object-contain"
+              : "object-cover"
+          }`}
         />
       </Link>
 

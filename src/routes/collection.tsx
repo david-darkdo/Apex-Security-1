@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -23,6 +24,7 @@ import {
   type ItemRequirements,
   type CollectionV2,
 } from "@/lib/collection";
+import { createCollectionSnapshot } from "@/lib/collection.functions";
 import { getCanonicalProductSlug } from "@/lib/product-url";
 import { useAppSettings, waLink } from "@/lib/settings";
 import { getProductionOrigin } from "@/lib/origin";
@@ -42,6 +44,9 @@ import {
   AlertCircle,
   History,
   Layers,
+  User,
+  Building,
+  ClipboardList,
 } from "lucide-react";
 import { publicImageUrl } from "@/components/ImageUploader";
 
@@ -60,6 +65,7 @@ function CollectionPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { data: settings } = useAppSettings();
+  const snapshotFn = useServerFn(createCollectionSnapshot);
 
   const [items, setItems] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -78,10 +84,18 @@ function CollectionPage() {
   const [requirementsMap, setRequirementsMap] = useState<Record<string, ItemRequirements>>({});
   const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
+  // Customer & Project Level Requirements
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [projectName, setProjectName] = useState("Security Installation Project");
+  const [projectNotes, setProjectNotes] = useState("");
 
   // Phone modal & popup blocker fallback state
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
+  const [nameInput, setNameInput] = useState("");
   const [whatsappFallbackUrl, setWhatsappFallbackUrl] = useState<string | null>(null);
 
   // Remove confirmation modal state
@@ -119,106 +133,134 @@ function CollectionPage() {
             reference_number:
               (batch.collectionData as any).reference_number ||
               generateCollectionReference(batch.collectionData.id),
-            project_name: (batch.collectionData as any).project_name || null,
-            status: (batch.collectionData as any).status || "Draft",
-            is_locked: (batch.collectionData as any).is_locked ?? false,
-            parent_collection_id: (batch.collectionData as any).parent_collection_id || null,
-            version: (batch.collectionData as any).version || 1,
-            submitted_at: (batch.collectionData as any).submitted_at || null,
+            project_name: batch.collectionData.project_name,
+            status: batch.collectionData.status || "Draft",
+            is_locked: !!batch.collectionData.is_locked,
+            parent_collection_id: batch.collectionData.parent_collection_id,
+            version: batch.collectionData.version || 1,
+            submitted_at: batch.collectionData.submitted_at,
             created_at: batch.collectionData.created_at,
             updated_at: batch.collectionData.updated_at,
           });
+          if (batch.collectionData.project_name) {
+            setProjectName(batch.collectionData.project_name);
+          }
+        }
+        if (batch.profile?.full_name) {
+          setCustomerName(batch.profile.full_name);
+        }
+        if (batch.profile?.phone_number) {
+          setCustomerPhone(batch.profile.phone_number);
+          setPhoneInput(batch.profile.phone_number);
         }
         setProducts(batch.products);
 
-        const savedUserReqs = getUserItemRequirements(user.id);
-        const reqMap: Record<string, ItemRequirements> = {};
-        batch.items.forEach((ci: any) => {
-          const matchingProd = batch.products.find((p) => p.id === ci.product_id);
-          const autoUnit = detectProductUnit(matchingProd);
-          const savedReq = savedUserReqs[ci.product_id] || {};
-          reqMap[ci.product_id] = {
-            quantity: ci.quantity ?? savedReq.quantity ?? 1,
-            unit: ci.unit || savedReq.unit || autoUnit,
-            installation_location: ci.installation_location || savedReq.installation_location || "",
-            delivery_preference:
-              ci.delivery_preference || savedReq.delivery_preference || "Deliver to Site",
-            installation_required:
-              ci.installation_required || savedReq.installation_required || "Not Sure",
-            project_notes: ci.project_notes || savedReq.project_notes || "",
-          };
-        });
-        setRequirementsMap(reqMap);
+        // Load user requirements
+        const userReqs = getUserItemRequirements(user.id);
+        setRequirementsMap(userReqs);
       } else {
+        // Guest mode (< 16ms instantaneous localStorage fetch)
         const guest = getGuestCollection();
-        setItems(guest);
-        setCollectionId(null);
-        setCollectionData(null);
-        setUserProfile(null);
-        const prods = await fetchProductsByIds(guest.map((g) => g.product_id));
-        setProducts(prods);
-
+        const pIds = guest.map((i) => i.product_id);
         const reqMap: Record<string, ItemRequirements> = {};
-        guest.forEach((gi) => {
-          const matchingProd = prods.find((p) => p.id === gi.product_id);
-          const autoUnit = detectProductUnit(matchingProd);
-          reqMap[gi.product_id] = {
-            quantity: gi.quantity ?? 1,
-            unit: gi.unit || autoUnit,
-            installation_location: gi.installation_location || "",
-            delivery_preference: gi.delivery_preference || "Deliver to Site",
-            installation_required: gi.installation_required || "Not Sure",
-            project_notes: gi.project_notes || "",
-          };
+        guest.forEach((i) => {
+          if (
+            i.quantity ||
+            i.installation_location ||
+            i.delivery_preference ||
+            i.installation_required ||
+            i.project_notes
+          ) {
+            reqMap[i.product_id] = {
+              quantity: i.quantity,
+              unit: i.unit,
+              installation_location: i.installation_location,
+              delivery_preference: i.delivery_preference,
+              installation_required: i.installation_required,
+              project_notes: i.project_notes,
+            };
+          }
         });
         setRequirementsMap(reqMap);
+
+        if (pIds.length > 0) {
+          const prods = await fetchProductsByIds(pIds);
+          setProducts(prods);
+        } else {
+          setProducts([]);
+        }
+        setItems(guest);
       }
     };
 
-    if (!loading) void load();
-  }, [user, loading, refreshKey]);
+    void load();
+
+    const handleCollectionChange = () => {
+      setRefreshKey((k) => k + 1);
+    };
+    window.addEventListener("collection:change", handleCollectionChange);
+    return () => window.removeEventListener("collection:change", handleCollectionChange);
+  }, [user, refreshKey]);
+
+  // Load user favorites
+  useEffect(() => {
+    if (!user) return;
+    const loadFavs = async () => {
+      const { data: favs } = await supabase
+        .from("favorites")
+        .select("product_id")
+        .eq("user_id", user.id);
+      if (favs && favs.length > 0) {
+        const favProds = await fetchProductsByIds(favs.map((f: any) => f.product_id));
+        setFavoriteProducts(favProds);
+      } else {
+        setFavoriteProducts([]);
+      }
+    };
+    void loadFavs();
+  }, [user]);
 
   const handleRequirementChange = (productId: string, patch: Partial<ItemRequirements>) => {
-    setRequirementsMap((prev) => {
-      const current = prev[productId] || {};
-      const updated = { ...current, ...patch };
-      if (user) {
-        updateUserItemRequirements(user.id, productId, updated);
-      } else {
-        updateGuestItemRequirements(productId, updated);
-      }
-      return { ...prev, [productId]: updated };
-    });
+    const updated = {
+      ...(requirementsMap[productId] || {}),
+      ...patch,
+    };
+    setRequirementsMap((prev) => ({
+      ...prev,
+      [productId]: updated,
+    }));
+
+    if (user) {
+      updateUserItemRequirements(user.id, productId, updated);
+    } else {
+      updateGuestItemRequirements(productId, updated);
+    }
   };
 
   const toggleExpand = (productId: string) => {
     setExpandedMap((prev) => ({ ...prev, [productId]: !prev[productId] }));
   };
 
-  const promptRemoveProduct = (product: any) => {
+  const handleRemoveClick = (product: any) => {
     setProductToRemove(product);
   };
 
-  const confirmRemoveProduct = async () => {
+  const confirmRemoveProduct = () => {
     if (!productToRemove) return;
     const productId = productToRemove.id;
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-    setItems((prev) => prev.filter((i) => i.product_id !== productId));
-
     if (user) {
-      await removeItemFromUserCollection(user.id, productId);
+      removeItemFromUserCollection(user.id, productId);
     } else {
       removeGuestItem(productId);
     }
     setProductToRemove(null);
-    toast.success("Item removed from collection");
+    toast.success("Item removed from workspace");
   };
 
   // Summary Metrics Calculation
   const summaryMetrics = useMemo(() => {
     const activeProducts = activeView === "collection" ? products : favoriteProducts;
     let totalPieces = 0;
-    let totalSqM = 0;
     let totalPrice = 0;
     let installerRequestedCount = 0;
     let deliveryItemsCount = 0;
@@ -226,17 +268,15 @@ function CollectionPage() {
     activeProducts.forEach((p) => {
       const req = requirementsMap[p.id] || {};
       const qty = req.quantity || 1;
-      const unit = req.unit || detectProductUnit(p);
       const price = Number(p.price || 0);
 
-      if (unit === "m²") totalSqM += qty;
-      else totalPieces += qty;
-
+      totalPieces += qty;
       totalPrice += price * qty;
 
       if (
         req.installation_required &&
         req.installation_required !== "Not Sure" &&
+        req.installation_required !== "No, Supply Hardware Only" &&
         req.installation_required !== "No, Supply Only"
       ) {
         installerRequestedCount++;
@@ -247,16 +287,10 @@ function CollectionPage() {
       }
     });
 
-    const qtyParts: string[] = [];
-    if (totalSqM > 0) qtyParts.push(`${totalSqM.toLocaleString()} m²`);
-    if (totalPieces > 0) qtyParts.push(`${totalPieces.toLocaleString()} Pcs`);
-    const totalQtyString = qtyParts.join(" + ") || "0 Items";
-
     return {
       totalPieces,
-      totalSqM,
       totalPriceFormatted: `₦${totalPrice.toLocaleString()}`,
-      totalQtyString,
+      totalQtyString: `${totalPieces.toLocaleString()} Units`,
       installerRequestedCount,
       deliveryItemsCount,
       itemCount: activeProducts.length,
@@ -264,199 +298,240 @@ function CollectionPage() {
   }, [products, favoriteProducts, activeView, requirementsMap]);
 
   const handlePushToWhatsAppClick = async () => {
-    if (!user) {
-      toast("Please sign in or create an account to submit your project quotation.");
-      navigate({
-        to: "/auth",
-        search: { redirectTo: "/collection" },
-      });
-      return;
-    }
-
-    const currentPhone = userProfile?.phone_number || user?.phone || user?.user_metadata?.phone;
+    const currentPhone = customerPhone || userProfile?.phone_number || user?.phone;
     if (!currentPhone) {
+      setPhoneInput("");
+      setNameInput(customerName || "");
       setShowPhoneModal(true);
       return;
     }
-    await executePushToWhatsApp();
+    await executePushToWhatsApp(customerName, currentPhone);
   };
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneInput.trim()) {
-      toast.error("Please enter a valid phone number");
+      toast.error("Please enter a valid phone or WhatsApp number");
       return;
     }
 
+    const finalPhone = phoneInput.trim();
+    const finalName = nameInput.trim() || customerName || "Valued Client";
+
+    setCustomerPhone(finalPhone);
+    setCustomerName(finalName);
+
     if (user) {
-      await updateCustomerPhoneNumber(user.id, phoneInput.trim());
-      setUserProfile((prev: any) => ({ ...(prev || {}), phone_number: phoneInput.trim() }));
+      await updateCustomerPhoneNumber(user.id, finalPhone);
+      setUserProfile((prev: any) => ({ ...(prev || {}), phone_number: finalPhone, full_name: finalName }));
     }
 
     setShowPhoneModal(false);
-    toast.success("Phone number saved to profile");
-    await executePushToWhatsApp();
+    toast.success("Contact details confirmed");
+    await executePushToWhatsApp(finalName, finalPhone);
   };
 
-  const executePushToWhatsApp = async () => {
+  const executePushToWhatsApp = async (nameOverride?: string, phoneOverride?: string) => {
     if (!settings?.sales_whatsapp) {
-      toast.error("Sales WhatsApp not configured");
+      toast.error("Sales WhatsApp number is not configured");
       return;
     }
 
     const activeItems = activeView === "collection" ? products : favoriteProducts;
-    let id = collectionId || (user ? getCachedUserCollectionItems(user.id).collection_id : "");
-    if (!id && user) {
-      id = await ensureUserCollection(user.id);
-      setCollectionId(id);
+    if (activeItems.length === 0) {
+      toast.error("Your workspace is empty");
+      return;
     }
-    const refNum = collectionData?.reference_number || generateCollectionReference(id || undefined);
-    const versionStr =
-      collectionData?.version && collectionData.version > 1 ? ` (v${collectionData.version})` : "";
-    const origin = getProductionOrigin();
-    const singleCollectionUrl = id ? `${origin}/collection/${id}` : `${origin}/collection`;
-    const customerName =
-      userProfile?.full_name || user?.user_metadata?.full_name || user?.email || "Valued Client";
-    const projectName = collectionData?.project_name || collectionData?.name || "Showroom Project";
 
-    // 1. Construct WhatsApp message synchronously (< 16ms)
-    const messageParts = [
-      "Hello Apex Security,",
-      "",
-      "I would like a quotation for my project.",
-      "",
-      `*Collection Reference:* ${refNum}${versionStr}`,
-      `*Customer:* ${customerName}`,
-      `*Project:* ${projectName}`,
-      "",
-      `*Project Collection Link:*`,
-      `${singleCollectionUrl}`,
-      "",
-      `*SELECTED PRODUCTS (${activeItems.length}):*`,
-    ];
+    setIsSubmitting(true);
+    const finalCustomerName = (nameOverride || customerName || userProfile?.full_name || user?.email || "Valued Client").trim();
+    const finalCustomerPhone = (phoneOverride || customerPhone || userProfile?.phone_number || "").trim();
+    const finalProjectName = (projectName || "Security Installation Project").trim();
+    const finalProjectNotes = (projectNotes || "").trim();
 
-    activeItems.forEach((p, idx) => {
-      const req = requirementsMap[p.id] || {};
-      const qty = req.quantity || 1;
-      const unit = req.unit || detectProductUnit(p);
-      const loc = req.installation_location ? ` | Loc: ${req.installation_location}` : "";
-      const del = req.delivery_preference ? ` | Delivery: ${req.delivery_preference}` : "";
-      const inst =
-        req.installation_required && req.installation_required !== "Not Sure"
-          ? ` | Install: ${req.installation_required}`
-          : "";
-      const notes = req.project_notes ? ` | Notes: ${req.project_notes}` : "";
+    try {
+      // 1. Create server-side locked snapshot (authenticated or guest)
+      const snapshotItems = activeItems.map((p) => {
+        const req = requirementsMap[p.id] || {};
+        return {
+          product_id: p.id,
+          quantity: req.quantity || 1,
+          unit: req.unit || detectProductUnit(p),
+          installation_location: req.installation_location,
+          delivery_preference: req.delivery_preference,
+          installation_required: req.installation_required,
+          project_notes: req.project_notes,
+        };
+      });
+
+      const snapRes = await snapshotFn({
+        data: {
+          items: snapshotItems,
+          userId: user ? user.id : null,
+          customerName: finalCustomerName,
+          customerPhone: finalCustomerPhone,
+          customerEmail: user ? user.email : null,
+          projectName: finalProjectName,
+          projectNotes: finalProjectNotes,
+        },
+      });
+
+      const snapId = snapRes.collectionId;
+      const refNum = snapRes.referenceNumber;
+      const origin = getProductionOrigin();
+      const singleCollectionUrl = `${origin}/collection/${snapId}`;
+
+      // 2. Construct clean, professional Apex Security WhatsApp quotation
+      const messageParts = [
+        "Hello Apex Security,",
+        "",
+        "I would like a quotation for my project.",
+        "",
+        `*Collection Reference:* ${refNum}`,
+        `*Customer:* ${finalCustomerName}`,
+        `*Project:* ${finalProjectName}`,
+        "",
+        `*Project Collection Link:*`,
+        `${singleCollectionUrl}`,
+        "",
+        `*SELECTED PRODUCTS (${activeItems.length}):*`,
+      ];
+
+      activeItems.forEach((p, idx) => {
+        const req = requirementsMap[p.id] || {};
+        const qty = req.quantity || 1;
+        const unit = req.unit || detectProductUnit(p);
+        const loc = req.installation_location ? ` | Loc: ${req.installation_location}` : "";
+        const del = req.delivery_preference ? ` | Delivery: ${req.delivery_preference}` : "";
+        const inst =
+          req.installation_required && req.installation_required !== "Not Sure"
+            ? ` | Install: ${req.installation_required}`
+            : "";
+        const notes = req.project_notes ? ` | Notes: ${req.project_notes}` : "";
+
+        messageParts.push(
+          `${idx + 1}. *${p.name}* (Code: ${p.code}) — ${qty} ${unit}${loc}${del}${inst}${notes}`,
+        );
+      });
+
+      if (finalProjectNotes) {
+        messageParts.push("", `*PROJECT SCOPE NOTES:* ${finalProjectNotes}`);
+      }
 
       messageParts.push(
-        `${idx + 1}. *${p.name}* (Code: ${p.code}) — ${qty} ${unit}${loc}${del}${inst}${notes}`,
+        "",
+        `*PROJECT SUMMARY:*`,
+        `Total Est. Quantity: ${summaryMetrics.totalQtyString}`,
+        `Total Est. Value: ${summaryMetrics.totalPriceFormatted}`,
+        `Delivery Items: ${summaryMetrics.deliveryItemsCount}`,
+        `Installer Service Requested: ${summaryMetrics.installerRequestedCount > 0 ? "Yes" : "No"}`,
       );
-    });
 
-    messageParts.push(
-      "",
-      `*PROJECT SUMMARY:*`,
-      `Total Est. Quantity: ${summaryMetrics.totalQtyString}`,
-      `Total Est. Value: ${summaryMetrics.totalPriceFormatted}`,
-      `Delivery Items: ${summaryMetrics.deliveryItemsCount}`,
-      `Installer Service Requested: ${summaryMetrics.installerRequestedCount > 0 ? "Yes" : "No"}`,
-    );
+      const msg = messageParts.join("\n");
+      const url = waLink(settings.sales_whatsapp, msg);
 
-    const msg = messageParts.join("\n");
-    const url = waLink(settings.sales_whatsapp, msg);
-
-    // 2. INSTANT WHATSAPP WINDOW LAUNCH (< 16ms) within immediate click gesture stack
-    const win = window.open(url, "_blank", "noopener,noreferrer");
-    if (!win || win.closed || typeof win.closed === "undefined") {
-      setWhatsappFallbackUrl(url);
-      toast("Quotation ready! Click the green button below to launch WhatsApp.");
-    } else {
-      toast.success("Quotation request submitted & saved to History!");
-    }
-
-    // 3. Clear active workspace state immediately (< 16ms)
-    setGuestCollection([]);
-    setItems([]);
-    setProducts([]);
-    setJustSubmitted(true);
-    setLastSubmittedRef(refNum);
-    setCollectionId(null);
-    setCollectionData(null);
-
-    // 4. Background non-blocking database lock & CRM inquiry logging
-    (async () => {
-      let targetId = id;
-      if (!targetId && user) targetId = await ensureUserCollection(user.id);
-      if (targetId) {
-        await lockAndSubmitCollection(targetId, user?.id);
-        if (user) {
-          try {
-            await supabase.from("whatsapp_inquiries").insert({
-              collection_id: targetId,
-              customer_name: user.user_metadata?.full_name || user.email || "Customer",
-              customer_phone:
-                userProfile?.phone_number || user.phone || user.user_metadata?.phone || "",
-              customer_email: user.email ?? null,
-              whatsapp_number:
-                userProfile?.phone_number || user.user_metadata?.whatsapp || user.phone || null,
-              inquiry_status: "NEW",
-              status: "pending",
-            } as never);
-          } catch {}
-        }
+      // 3. Launch WhatsApp in new tab
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win || win.closed || typeof win.closed === "undefined") {
+        setWhatsappFallbackUrl(url);
+        toast("Quotation generated! Click the button below to launch WhatsApp.");
+      } else {
+        toast.success("Quotation submitted & saved! Opening WhatsApp…");
       }
-    })();
+
+      // 4. Reset active workspace
+      setGuestCollection([]);
+      setItems([]);
+      setProducts([]);
+      setJustSubmitted(true);
+      setLastSubmittedRef(refNum);
+      setCollectionId(null);
+      setCollectionData(null);
+    } catch (err: any) {
+      console.error("Submission failed:", err);
+      toast.error(err?.message || "Failed to submit quotation");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const shareLink = async () => {
-    let id = collectionId;
-    if (!id && user) id = await ensureUserCollection(user.id);
-    if (!id) {
-      toast("Sign in to share your collection by link");
+    const activeItems = activeView === "collection" ? products : favoriteProducts;
+    if (activeItems.length === 0) {
+      toast.error("Your workspace is empty");
       return;
     }
-    const url = `${window.location.origin}/collection/${id}`;
+
+    setIsSharing(true);
     try {
+      const snapshotItems = activeItems.map((p) => {
+        const req = requirementsMap[p.id] || {};
+        return {
+          product_id: p.id,
+          quantity: req.quantity || 1,
+          unit: req.unit || detectProductUnit(p),
+          installation_location: req.installation_location,
+          delivery_preference: req.delivery_preference,
+          installation_required: req.installation_required,
+          project_notes: req.project_notes,
+        };
+      });
+
+      const snapRes = await snapshotFn({
+        data: {
+          items: snapshotItems,
+          userId: user ? user.id : null,
+          customerName: customerName || "Showroom Client",
+          customerPhone: customerPhone || "",
+          customerEmail: user ? user.email : null,
+          projectName: projectName || "Security Project Quotation",
+          projectNotes: projectNotes || "",
+        },
+      });
+
+      const origin = getProductionOrigin();
+      const url = `${origin}/collection/${snapRes.collectionId}`;
+
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
+        toast.success("Shareable quotation link copied to clipboard!");
       } else {
-        toast.success("Link: " + url);
+        toast.success("Quotation Link: " + url);
       }
-    } catch {
-      toast("Link: " + url);
+    } catch (err: any) {
+      console.error("Share error:", err);
+      toast.error(err?.message || "Failed to create shareable link");
+    } finally {
+      setIsSharing(false);
     }
   };
 
   return (
-    <div className="container-app py-6 space-y-6">
+    <div className="container-app py-6 space-y-6 select-none">
       {/* 1. PAGE TITLE & HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-2xl font-semibold">Active Project Workspace</h1>
+            <h1 className="font-display text-2xl font-bold uppercase tracking-tight text-foreground">
+              Active Project Workspace
+            </h1>
             {collectionData?.reference_number && (
-              <span className="rounded-md bg-card text-foreground text-xs font-mono font-bold px-2.5 py-1 border border-border">
+              <span className="rounded-md bg-surface-2 text-foreground text-xs font-mono font-bold px-2.5 py-1 border border-border">
                 {collectionData.reference_number}
-              </span>
-            )}
-            {collectionData?.version && collectionData.version > 1 && (
-              <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 border border-primary/20">
-                v{collectionData.version}
               </span>
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Build your custom project bill of quantities, set specifications, and push directly to
-            WhatsApp for rapid pricing.
+            Build your custom project bill of quantities, set hardware specifications, and push directly to WhatsApp for rapid pricing.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3.5 py-2 text-xs font-bold text-foreground hover:border-primary/50 hover:text-primary transition shrink-0 shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground hover:bg-surface-2 transition shrink-0 shadow-xs"
           >
-            <span>Storefront Feed</span>
+            <span>Security Catalog</span>
           </Link>
           {user && (
             <Link
@@ -467,13 +542,14 @@ function CollectionPage() {
               <span>Collection History</span>
             </Link>
           )}
-          {collectionId && (
+          {products.length > 0 && (
             <button
               onClick={shareLink}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-surface-2 transition"
+              disabled={isSharing}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-surface-2 transition disabled:opacity-50"
             >
-              <Share2 className="h-4 w-4 text-muted-foreground" />
-              <span>Share Link</span>
+              <Share2 className="h-4 w-4 text-primary" />
+              <span>{isSharing ? "Generating…" : "Share Collection"}</span>
             </button>
           )}
         </div>
@@ -482,7 +558,7 @@ function CollectionPage() {
       {/* 2. MAIN CONTENT AREA */}
       {justSubmitted ? (
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-8 text-center space-y-4 max-w-lg mx-auto">
-          <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400 mx-auto" />
+          <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto" />
           <div className="space-y-1">
             <h2 className="font-display text-xl font-bold text-foreground">
               Quotation Request Submitted!
@@ -491,8 +567,7 @@ function CollectionPage() {
               Reference: <strong className="font-mono text-foreground">{lastSubmittedRef}</strong>
             </p>
             <p className="text-xs text-muted-foreground pt-1">
-              Your quotation request was saved to your permanent Collection History. Your active
-              project workspace is now reset and ready for your next project quotation.
+              Your quotation request has been generated and logged. Your active project workspace is now reset and ready for your next project quotation.
             </p>
           </div>
 
@@ -502,7 +577,7 @@ function CollectionPage() {
                 href={whatsappFallbackUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-xs font-bold text-white hover:bg-[#1EBE5D] shadow-md transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover shadow-md transition"
               >
                 <MessageCircle className="h-4 w-4" />
                 Launch WhatsApp Now
@@ -517,7 +592,7 @@ function CollectionPage() {
                 setLastSubmittedRef(null);
                 setWhatsappFallbackUrl(null);
               }}
-              className="rounded-lg bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+              className="rounded-lg bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover transition shadow-xs"
             >
               Start New Project Workspace
             </button>
@@ -539,16 +614,15 @@ function CollectionPage() {
               No Active Project Workspace
             </h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Explore our luxury surface catalogue and save products to build your project
-              quotation.
+              Explore our security hardware catalogue and add products to build your project quotation.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               to="/"
-              className="inline-block rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/95 transition shadow-sm"
+              className="inline-block rounded-xl bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover transition shadow-sm"
             >
-              Browse Catalogue
+              Browse Security Catalog
             </Link>
             {user && (
               <Link
@@ -579,52 +653,63 @@ function CollectionPage() {
             <div className="space-y-4">
               {products.map((product) => {
                 const req = requirementsMap[product.id] || {};
-                const isExpanded = Boolean(expandedMap[product.id]);
                 const qty = req.quantity || 1;
                 const unit = req.unit || detectProductUnit(product);
+                const isExpanded = !!expandedMap[product.id];
                 const itemTotal = Number(product.price || 0) * qty;
+                const isWhiteBg = product.white_image_background !== false;
+
+                const imgUrl =
+                  publicImageUrl(product.generated_studio_image) ||
+                  publicImageUrl(product.image_url) ||
+                  "/apex-logo.png";
 
                 return (
                   <div
                     key={product.id}
-                    className="rounded-xl border border-border bg-card overflow-hidden shadow-xs hover:border-primary/30 transition"
+                    className="rounded-xl border border-border bg-card overflow-hidden shadow-xs"
                   >
-                    <div className="p-4 flex items-start gap-4">
-                      <img
-                        src={
-                          publicImageUrl(product.generated_studio_image) ||
-                          publicImageUrl(product.image_url) ||
-                          ""
-                        }
-                        alt={product.name}
-                        className="h-20 w-20 rounded-lg object-cover bg-muted border border-border/50 shrink-0"
-                      />
+                    {/* Main Row */}
+                    <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      {/* Product Thumbnail & Details */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Link
+                          to="/product/$slug"
+                          params={{ slug: getCanonicalProductSlug(product) }}
+                          className={`h-16 w-16 rounded-lg overflow-hidden shrink-0 border border-border flex items-center justify-center ${
+                            isWhiteBg ? "bg-white p-1.5" : "bg-surface-2"
+                          }`}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={product.name}
+                            className={`h-full w-full ${isWhiteBg ? "object-contain" : "object-cover"}`}
+                          />
+                        </Link>
 
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <Link
-                              to="/product/$slug"
-                              params={{ slug: getCanonicalProductSlug(product) }}
-                              className="font-semibold text-sm text-foreground hover:text-primary transition line-clamp-1"
-                            >
-                              {product.name}
-                            </Link>
-                            <p className="text-xs text-muted-foreground font-mono">
-                              Code: {product.code}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => promptRemoveProduct(product)}
-                            className="p-1.5 text-muted-foreground hover:text-red-500 rounded-md hover:bg-red-500/10 transition"
-                            title="Remove product"
+                        <div className="min-w-0">
+                          <Link
+                            to="/product/$slug"
+                            params={{ slug: getCanonicalProductSlug(product) }}
+                            className="font-display text-sm font-bold text-foreground hover:text-primary transition line-clamp-1"
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                            {product.name}
+                          </Link>
+                          <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                            CODE · {product.code}
+                          </p>
+                          <p className="text-xs font-bold text-foreground mt-0.5">
+                            ₦{Number(product.price || 0).toLocaleString()}
+                            <span className="text-[10px] font-normal text-muted-foreground ml-1">
+                              /{product.pricing_unit || "piece"}
+                            </span>
+                          </p>
                         </div>
+                      </div>
 
-                        {/* Quantity & Unit Controls */}
-                        <div className="flex flex-wrap items-center gap-3 pt-2">
+                      {/* Quantity & Actions */}
+                      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-border">
+                        <div className="flex items-center gap-2">
                           <div className="flex items-center border border-border rounded-lg bg-surface-2 overflow-hidden">
                             <button
                               onClick={() =>
@@ -636,7 +721,7 @@ function CollectionPage() {
                             >
                               -
                             </button>
-                            <span className="px-3 py-1 text-xs font-semibold font-mono border-x border-border/60 min-w-[2.5rem] text-center">
+                            <span className="px-2.5 py-1 text-xs font-mono font-bold text-foreground">
                               {qty}
                             </span>
                             <button
@@ -657,13 +742,24 @@ function CollectionPage() {
                             className="rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium focus:outline-none"
                           >
                             <option value="Pieces">Pieces</option>
-                            <option value="m²">m²</option>
+                            <option value="Units">Units</option>
+                            <option value="Sets">Sets</option>
+                            <option value="Systems">Systems</option>
+                            <option value="Meters">Meters</option>
                           </select>
 
-                          <span className="text-xs font-semibold text-primary ml-auto">
+                          <span className="text-xs font-semibold text-primary ml-auto sm:ml-2">
                             ₦{itemTotal.toLocaleString()}
                           </span>
                         </div>
+
+                        <button
+                          onClick={() => handleRemoveClick(product)}
+                          className="rounded-lg p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                          title="Remove item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
 
@@ -679,15 +775,24 @@ function CollectionPage() {
                           <ChevronDown className="h-3.5 w-3.5" />
                         )}
                         <span>
-                          {isExpanded ? "Hide Specifications" : "Set Installation & Delivery Specs"}
+                          {isExpanded
+                            ? "Hide Specifications"
+                            : "Configure Specifications & Notes"}
                         </span>
                       </button>
 
-                      {(req.installation_location ||
-                        req.delivery_preference ||
-                        req.project_notes) && (
-                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                          ✓ Specs Configured
+                      {/* Micro summary of configured specs */}
+                      {!isExpanded && (
+                        <span className="text-[11px] text-muted-foreground font-mono truncate max-w-xs">
+                          {[
+                            req.installation_location && `Loc: ${req.installation_location}`,
+                            req.delivery_preference,
+                            req.installation_required &&
+                              req.installation_required !== "Not Sure" &&
+                              `Install: ${req.installation_required}`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </span>
                       )}
                     </div>
@@ -698,11 +803,11 @@ function CollectionPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-muted-foreground font-medium mb-1">
-                              Installation Location (e.g. Main Gate, Office Reception, Perimeter)
+                              Installation Location (e.g. Main Entrance Gate, Server Room, Perimeter)
                             </label>
                             <input
                               type="text"
-                              placeholder="e.g. Main Entrance Gate / Perimeter"
+                              placeholder="e.g. Main Entrance Gate / Perimeter Fence"
                               value={req.installation_location || ""}
                               onChange={(e) =>
                                 handleRequirementChange(product.id, {
@@ -727,7 +832,7 @@ function CollectionPage() {
                               className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
                             >
                               <option value="Deliver to Site">
-                                Deliver to Site (Lagos/Nationwide)
+                                Deliver to Site (Abuja / Lagos / Nationwide)
                               </option>
                               <option value="Self Pickup">Self Pickup from Showroom</option>
                             </select>
@@ -748,19 +853,19 @@ function CollectionPage() {
                             >
                               <option value="Not Sure">Not Sure (Need Advice)</option>
                               <option value="Yes, Full Installation">
-                                Yes, Full Installation Required
+                                Yes, Full Professional Installation Required
                               </option>
-                              <option value="No, Supply Only">No, Supply Material Only</option>
+                              <option value="No, Supply Hardware Only">No, Supply Hardware Only</option>
                             </select>
                           </div>
 
                           <div>
                             <label className="block text-muted-foreground font-medium mb-1">
-                              Special Project Notes / Cuts
+                              Special Project Specifications / Requirements
                             </label>
                             <input
                               type="text"
-                              placeholder="e.g. 60x120cm size, bullnose edge"
+                              placeholder="e.g. 4-channel NVR, left-hand door opening, biometric access"
                               value={req.project_notes || ""}
                               onChange={(e) =>
                                 handleRequirementChange(product.id, {
@@ -781,11 +886,76 @@ function CollectionPage() {
 
           {/* Quotation Summary Card & Push to WhatsApp Action */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card p-5 space-y-4 sticky top-20 shadow-sm">
+            {/* Customer & Project Details Card */}
+            <div className="rounded-2xl border border-border bg-card p-5 space-y-3.5 shadow-sm">
+              <div className="border-b border-border pb-2.5">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                  <ClipboardList className="h-4 w-4 text-primary" />
+                  Client & Project Scope
+                </h3>
+              </div>
+
+              <div className="space-y-2.5 text-xs">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Customer / Company Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Arc. Oladipo / Dangote Refinery"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Phone / WhatsApp Number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +234 801 234 5678"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Project / Site Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Maitama Villa Security Setup"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Additional Request / Site Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Site inspection required next Tuesday..."
+                    value={projectNotes}
+                    onChange={(e) => setProjectNotes(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Quotation Summary Card */}
+            <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
               <div className="border-b border-border pb-3">
                 <h3 className="font-display text-base font-semibold">Quotation Summary</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Est. summary bill of quantities for WhatsApp submission.
+                  Estimated bill of quantities for technical review & fulfillment.
                 </p>
               </div>
 
@@ -801,7 +971,7 @@ function CollectionPage() {
                   </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Delivery Services:</span>
+                  <span>Delivery Preference:</span>
                   <span className="font-semibold text-foreground">
                     {summaryMetrics.deliveryItemsCount} Items Configured
                   </span>
@@ -815,7 +985,7 @@ function CollectionPage() {
 
                 <div className="border-t border-border pt-3 flex justify-between items-baseline">
                   <span className="font-bold text-sm text-foreground">
-                    Est. Total Material Cost:
+                    Est. Total Hardware Cost:
                   </span>
                   <span className="font-bold text-lg text-primary">
                     {summaryMetrics.totalPriceFormatted}
@@ -826,44 +996,71 @@ function CollectionPage() {
               <button
                 onClick={handlePushToWhatsAppClick}
                 disabled={isSubmitting}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#1EBE5D] active:scale-[0.99] transition shadow-md disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover active:scale-[0.99] transition shadow-md disabled:opacity-50"
               >
-                <MessageCircle className="h-5 w-5" />
-                <span>Push Collection to WhatsApp</span>
+                <MessageCircle className="h-4 w-4" />
+                <span>{isSubmitting ? "Submitting…" : "Push Collection to WhatsApp"}</span>
+              </button>
+
+              <button
+                onClick={shareLink}
+                disabled={isSharing}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-card transition shadow-xs disabled:opacity-50"
+              >
+                <Share2 className="h-3.5 w-3.5 text-primary" />
+                <span>{isSharing ? "Generating Link…" : "Copy Shareable Link"}</span>
               </button>
 
               <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-                Submitting saves your project collection to your permanent History record and opens
-                WhatsApp for direct pricing.
+                Direct handoff to Apex Security engineering desk via WhatsApp (+234 706 349 2581).
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Phone Input Modal */}
+      {/* Phone & Name Input Modal */}
       {showPhoneModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 space-y-4 shadow-xl">
             <div className="space-y-1 text-center">
               <Phone className="h-8 w-8 text-primary mx-auto" />
-              <h3 className="font-display text-lg font-bold text-foreground">Enter Phone Number</h3>
+              <h3 className="font-display text-lg font-bold text-foreground">Contact Information</h3>
               <p className="text-xs text-muted-foreground">
-                Please provide a phone number so our sales team can attach your quotation to your
-                project account.
+                Please enter your contact details so our engineering desk can link your quotation snapshot.
               </p>
             </div>
 
             <form onSubmit={handlePhoneSubmit} className="space-y-3">
-              <input
-                type="tel"
-                placeholder="e.g. +234 801 234 5678"
-                value={phoneInput}
-                onChange={(e) => setPhoneInput(e.target.value)}
-                autoFocus
-                className="w-full rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
-              />
-              <div className="flex gap-2">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+                  Full Name / Company
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Engr. Johnson"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-surface-2 px-4 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+                  Phone / WhatsApp Number *
+                </label>
+                <input
+                  type="tel"
+                  placeholder="e.g. +234 801 234 5678"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  autoFocus
+                  required
+                  className="w-full rounded-xl border border-border bg-surface-2 px-4 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowPhoneModal(false)}
@@ -873,9 +1070,9 @@ function CollectionPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl bg-primary py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/95 transition shadow-sm"
+                  className="flex-1 rounded-xl bg-primary py-2 text-xs font-bold uppercase tracking-wider text-canvas hover:bg-brand-orange-hover transition shadow-sm"
                 >
-                  Save & Push to WhatsApp
+                  Continue to WhatsApp
                 </button>
               </div>
             </form>
@@ -892,8 +1089,7 @@ function CollectionPage() {
               <h3 className="font-display text-lg font-bold text-foreground">Remove Product?</h3>
               <p className="text-xs text-muted-foreground">
                 Are you sure you want to remove{" "}
-                <strong className="text-foreground">{productToRemove.name}</strong> from your active
-                project workspace?
+                <strong className="text-foreground">{productToRemove.name}</strong> from your active project workspace?
               </p>
             </div>
 

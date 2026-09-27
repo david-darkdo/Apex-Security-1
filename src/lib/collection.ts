@@ -503,7 +503,7 @@ export async function fetchProductsByIds(ids: string[]) {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id,slug,name,code,price,brand,image_url,generated_studio_image,short_description"
+      "id,slug,name,code,price,pricing_unit,brand,image_url,generated_studio_image,white_image_background,short_description"
     )
     .in("id", ids);
   if (error) throw error;

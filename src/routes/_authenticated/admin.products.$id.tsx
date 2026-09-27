@@ -270,6 +270,7 @@ function RebuiltEditProductPage() {
       pricing_unit: p.pricing_unit || "piece",
       differentiator_type: p.differentiator_type || null,
       differentiator_note: (p.differentiator_note || "").trim() || null,
+      white_image_background: p.white_image_background !== false,
       processing_state: "completed",
     };
     delete payload.id;
@@ -643,6 +644,35 @@ function RebuiltEditProductPage() {
               This fixed original manufacturer image is the single source of truth for the product
               and is never overwritten or turned into a carousel.
             </p>
+
+            {/* White Image Background Toggle */}
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-foreground block">
+                  White Image Background
+                </span>
+                <span className="text-[10px] text-muted-foreground block">
+                  Enable white studio vitrine stage in showroom cards. Disable if photo has natural or dark background.
+                </span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={p.white_image_background !== false}
+                onClick={() => {
+                  setField("white_image_background", p.white_image_background === false ? true : false);
+                }}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  p.white_image_background !== false ? "bg-primary" : "bg-muted"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                    p.white_image_background !== false ? "translate-x-4" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Installation Images (MULTIPLE SWITCHABLE GALLERY) */}

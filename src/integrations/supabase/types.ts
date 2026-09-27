@@ -1636,6 +1636,8 @@ export type Database = {
           structured_data: Json | null
           subcategory_id: string | null
           type_id: string | null
+          pricing_unit?: string | null
+          white_image_background?: boolean | null
           updated_at: string
         }
         Insert: {
@@ -1698,6 +1700,8 @@ export type Database = {
           structured_data?: Json | null
           subcategory_id?: string | null
           type_id?: string | null
+          pricing_unit?: string | null
+          white_image_background?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -1760,6 +1764,8 @@ export type Database = {
           structured_data?: Json | null
           subcategory_id?: string | null
           type_id?: string | null
+          pricing_unit?: string | null
+          white_image_background?: boolean | null
           updated_at?: string
         }
         Relationships: [

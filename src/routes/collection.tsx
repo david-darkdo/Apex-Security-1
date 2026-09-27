@@ -367,7 +367,6 @@ function CollectionPage() {
       const snapRes = await snapshotFn({
         data: {
           items: snapshotItems,
-          userId: user ? user.id : null,
           customerName: finalCustomerName,
           customerPhone: finalCustomerPhone,
           customerEmail: user ? user.email : null,
@@ -480,7 +479,6 @@ function CollectionPage() {
       const snapRes = await snapshotFn({
         data: {
           items: snapshotItems,
-          userId: user ? user.id : null,
           customerName: customerName || "Showroom Client",
           customerPhone: customerPhone || "",
           customerEmail: user ? user.email : null,

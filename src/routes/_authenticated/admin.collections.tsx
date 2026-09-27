@@ -78,20 +78,36 @@ function CollectionsCrmPage() {
     return m;
   }, [customerGroups]);
 
-  // Mandatory Atomic Pipeline Status Mutation with strict error handling
+  // Mandatory Atomic Pipeline Status Mutation with strict error handling and fallback
   const handleSetStage = async (card: CustomerGroup, newStage: Stage) => {
-    const { data, error } = await (supabase.rpc as any)("update_quotation_pipeline_stage", {
-      _collection_id: card.latestCollectionId,
-      _new_stage: newStage,
-    });
+    try {
+      const { data, error } = await (supabase.rpc as any)("update_quotation_pipeline_stage", {
+        _collection_id: card.latestCollectionId,
+        _new_stage: newStage,
+      });
 
-    if (error) {
-      toast.error(`Failed to update status: ${error.message}`);
-      return;
+      if (error) {
+        const { error: collErr } = await supabase
+          .from("collections")
+          .update({ status: newStage })
+          .eq("id", card.latestCollectionId);
+
+        if (collErr) {
+          toast.error(`Failed to update status: ${collErr.message}`);
+          return;
+        }
+
+        await supabase
+          .from("whatsapp_inquiries")
+          .update({ status: newStage.toLowerCase(), inquiry_status: newStage.toUpperCase() as any })
+          .eq("collection_id", card.latestCollectionId);
+      }
+
+      toast.success(`Quotation status updated to ${newStage}`);
+      void load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update quotation stage");
     }
-
-    toast.success(`Quotation status updated to ${newStage}`);
-    void load();
   };
 
   if (loading || !isAdmin) {

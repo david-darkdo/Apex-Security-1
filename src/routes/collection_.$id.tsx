@@ -81,7 +81,7 @@ function CustomerCollectionQuotationPage() {
 
         setCollection(col);
 
-        // 2. Fetch collection items
+        // 2. Fetch collection items (if snapshot_data is present, items can also come from snapshot)
         const { data: colItems, error: itemsErr } = await supabase
           .from("collection_items")
           .select("*")
@@ -94,17 +94,22 @@ function CustomerCollectionQuotationPage() {
         const validItems = colItems || [];
         setItems(validItems);
 
-        // 3. Fetch products
-        const pIds = validItems.map((i: any) => i.product_id).filter(Boolean);
+        // 3. Fetch products to enable catalog links & rich slugs
+        const snapItems = (col.snapshot_data as any)?.items || [];
+        const pIds = Array.from(new Set([
+          ...validItems.map((i: any) => i.product_id),
+          ...snapItems.map((i: any) => i.product_id),
+        ])).filter(Boolean);
+
         if (pIds.length > 0) {
           const prods = await fetchProductsByIds(pIds);
           setProducts(prods as unknown as ProductRow[]);
         }
 
-        // 4. Fetch linked inquiry if present
+        // 4. Fetch linked inquiry if present (only customer-facing fields)
         const { data: inq } = await supabase
           .from("whatsapp_inquiries")
-          .select("customer_name, customer_phone, inquiry_status, status, internal_notes")
+          .select("customer_name, customer_phone, inquiry_status, status")
           .eq("collection_id", id)
           .maybeSingle();
 
@@ -129,26 +134,56 @@ function CustomerCollectionQuotationPage() {
     return map;
   }, [products]);
 
-  // Compute metrics
+  // Derive display items prioritized from immutable snapshot
+  const displayItems = useMemo(() => {
+    const snap = collection?.snapshot_data as any;
+    if (snap?.items && Array.isArray(snap.items) && snap.items.length > 0) {
+      return snap.items;
+    }
+    return items;
+  }, [collection, items]);
+
+  // Compute metrics from immutable snapshot data with safe fallback
   const summary = useMemo(() => {
+    const snap = collection?.snapshot_data as any;
+
+    if (snap && snap.total_price != null) {
+      return {
+        totalItems: Number(snap.total_items) || displayItems.length,
+        totalPieces: Number(snap.total_pieces) || displayItems.reduce((acc: number, i: any) => acc + (Number(i.quantity) || 1), 0),
+        totalPrice: Number(snap.total_price),
+        totalPriceFormatted: `₦${Number(snap.total_price).toLocaleString()}`,
+      };
+    }
+
+    if (collection?.total_price != null && Number(collection.total_price) > 0) {
+      return {
+        totalItems: Number(collection.total_items) || displayItems.length,
+        totalPieces: displayItems.reduce((acc: number, i: any) => acc + (Number(i.quantity) || 1), 0),
+        totalPrice: Number(collection.total_price),
+        totalPriceFormatted: `₦${Number(collection.total_price).toLocaleString()}`,
+      };
+    }
+
     let totalPieces = 0;
     let totalPrice = 0;
 
-    items.forEach((item) => {
+    displayItems.forEach((item: any) => {
       const p = productMap.get(item.product_id);
       const qty = Number(item.quantity) || 1;
+      const unitPrice = item.unit_price != null ? Number(item.unit_price) : (Number(p?.price) || 0);
+      const subtotal = item.subtotal != null ? Number(item.subtotal) : (unitPrice * qty);
       totalPieces += qty;
-      if (p && p.price) {
-        totalPrice += Number(p.price) * qty;
-      }
+      totalPrice += subtotal;
     });
 
     return {
-      totalItems: items.length,
+      totalItems: displayItems.length,
       totalPieces,
+      totalPrice,
       totalPriceFormatted: `₦${totalPrice.toLocaleString()}`,
     };
-  }, [items, productMap]);
+  }, [collection, displayItems, productMap]);
 
   const handleCopyLink = async () => {
     const origin = getProductionOrigin();
@@ -169,9 +204,10 @@ function CustomerCollectionQuotationPage() {
     const salesWa = settings?.sales_whatsapp || "+2347063492581";
     const origin = getProductionOrigin();
     const url = `${origin}/collection/${id}`;
-    const refNum = collection?.reference_number || collection?.name || id.slice(0, 8);
-    const projName = collection?.project_name || "Security Installation";
-    const custName = inquiry?.customer_name || (user ? user.email : "Client");
+    const snap = collection?.snapshot_data as any;
+    const refNum = collection?.reference_number || snap?.reference_number || collection?.name || id.slice(0, 8);
+    const projName = collection?.project_name || snap?.project_name || "Security Installation";
+    const custName = snap?.customer_name || inquiry?.customer_name || (user ? user.email : "Client");
 
     const messageLines = [
       `Hello Apex Security,`,
@@ -226,9 +262,12 @@ function CustomerCollectionQuotationPage() {
     );
   }
 
-  const refNumber = collection.reference_number || collection.name || `APX-${id.slice(0, 8)}`;
+  const snap = collection.snapshot_data as any;
+  const refNumber = collection.reference_number || snap?.reference_number || collection.name || `APX-${id.slice(0, 8)}`;
+  const displayClientName = snap?.customer_name || inquiry?.customer_name || null;
+  const customerProjectNotes = snap?.project_notes || null;
   const dateFormatted = new Date(
-    collection.submitted_at || collection.created_at,
+    collection.submitted_at || snap?.submitted_at || collection.created_at,
   ).toLocaleDateString("en-NG", {
     year: "numeric",
     month: "short",
@@ -248,7 +287,7 @@ function CustomerCollectionQuotationPage() {
           </Link>
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-foreground">
-              {collection.project_name || "Project Hardware Quotation"}
+              {collection.project_name || snap?.project_name || "Project Hardware Quotation"}
             </h1>
             <span className="rounded-md bg-surface-2 px-2.5 py-1 font-mono text-xs font-bold text-foreground border border-border">
               {refNumber}
@@ -261,9 +300,9 @@ function CustomerCollectionQuotationPage() {
             <span className="inline-flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5 text-primary" /> Generated: {dateFormatted}
             </span>
-            {inquiry?.customer_name && (
+            {displayClientName && (
               <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                <User className="h-3.5 w-3.5 text-primary" /> Client: {inquiry.customer_name}
+                <User className="h-3.5 w-3.5 text-primary" /> Client: {displayClientName}
               </span>
             )}
           </div>
@@ -293,7 +332,7 @@ function CustomerCollectionQuotationPage() {
         <div className="flex items-center justify-between">
           <h2 className="font-display text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
             <Package className="h-4 w-4 text-primary" />
-            Quotation Items ({items.length})
+            Quotation Items ({displayItems.length})
           </h2>
           <span className="text-xs text-muted-foreground font-mono">
             Total Hardware: {summary.totalPieces} Units
@@ -301,21 +340,22 @@ function CustomerCollectionQuotationPage() {
         </div>
 
         <div className="divide-y divide-border rounded-xl border border-border bg-surface overflow-hidden shadow-xs">
-          {items.map((item, idx) => {
+          {displayItems.map((item: any, idx: number) => {
             const p = productMap.get(item.product_id);
-            const img =
-              publicImageUrl(p?.generated_studio_image) ||
-              publicImageUrl(p?.image_url) ||
-              "/apex-logo.png";
+            const itemName = item.name || item.product_name || p?.name || "Hardware Item";
+            const itemCode = item.code || item.product_code || p?.code || "N/A";
+            const itemBrand = item.brand || p?.brand || "Apex Security";
+            const rawImg = item.image_url || item.product_image || p?.generated_studio_image || p?.image_url;
+            const img = (rawImg ? publicImageUrl(rawImg) : null) || "/apex-logo.png";
             const unit = item.unit || p?.pricing_unit || "piece";
             const qty = Number(item.quantity) || 1;
-            const price = Number(p?.price) || 0;
-            const subtotal = price * qty;
-            const isWhiteBg = p?.white_image_background !== false;
+            const unitPrice = item.unit_price != null ? Number(item.unit_price) : (Number(p?.price) || 0);
+            const subtotal = item.subtotal != null ? Number(item.subtotal) : (unitPrice * qty);
+            const isWhiteBg = item.white_image_background !== undefined ? item.white_image_background !== false : (p?.white_image_background !== false);
 
             return (
               <div
-                key={item.id || idx}
+                key={item.id || item.product_id || idx}
                 className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-surface-2/40 transition"
               >
                 {/* Product Media & Info */}
@@ -327,7 +367,7 @@ function CustomerCollectionQuotationPage() {
                   >
                     <img
                       src={img}
-                      alt={p?.name || "Product"}
+                      alt={itemName}
                       className={`h-full w-full ${isWhiteBg ? "object-contain" : "object-cover"}`}
                     />
                   </div>
@@ -339,16 +379,16 @@ function CustomerCollectionQuotationPage() {
                         params={{ slug: getCanonicalProductSlug(p) }}
                         className="font-display text-sm sm:text-base font-bold text-foreground hover:text-primary transition line-clamp-1 flex items-center gap-1.5 group"
                       >
-                        {p.name}
+                        {itemName}
                         <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition" />
                       </Link>
                     ) : (
-                      <p className="font-display text-sm font-bold text-foreground">
-                        Hardware Item
+                      <p className="font-display text-sm sm:text-base font-bold text-foreground line-clamp-1">
+                        {itemName}
                       </p>
                     )}
                     <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                      CODE · {p?.code || "N/A"} {p?.brand ? `| BRAND · ${p.brand}` : ""}
+                      CODE · {itemCode} {itemBrand ? `| BRAND · ${itemBrand}` : ""}
                     </p>
 
                     {/* Specifications tags */}
@@ -392,7 +432,7 @@ function CustomerCollectionQuotationPage() {
                       Unit Price
                     </p>
                     <p className="text-xs font-bold text-foreground">
-                      ₦{price.toLocaleString()}
+                      ₦{unitPrice.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right min-w-[100px]">
@@ -446,10 +486,10 @@ function CustomerCollectionQuotationPage() {
           </div>
         </div>
 
-        {collection.internal_notes && (
+        {customerProjectNotes && (
           <div className="rounded-lg bg-surface-2 p-3 text-xs border border-border mt-3">
-            <span className="font-bold text-foreground block mb-0.5">Project Scope Notes:</span>
-            <p className="text-muted-foreground leading-relaxed">{collection.internal_notes}</p>
+            <span className="font-bold text-foreground block mb-0.5">Client Project Scope & Requirements:</span>
+            <p className="text-muted-foreground leading-relaxed">{customerProjectNotes}</p>
           </div>
         )}
 

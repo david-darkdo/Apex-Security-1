@@ -22,7 +22,7 @@ export interface ItemRequirements {
 
 export interface CollectionV2 {
   id: string;
-  user_id: string;
+  user_id: string | null;
   name: string;
   reference_number?: string;
   project_name?: string | null;
@@ -42,28 +42,29 @@ const CACHED_ITEMS_KEY_PREFIX = "apex_security.cached_user_items_";
 
 export function generateCollectionReference(colId?: string): string {
   const year = new Date().getFullYear();
-  const hex = (colId || Math.random().toString(36)).substring(0, 6).toUpperCase();
+  const hex = colId
+    ? colId.replace(/-/g, "").substring(0, 6).toUpperCase()
+    : Math.random().toString(36).slice(2, 8).toUpperCase();
   return `APX-${year}-${hex}`;
 }
 
 export function detectProductUnit(product: any): string {
   if (!product) return "piece";
   if (product.pricing_unit) {
-    if (product.pricing_unit === "sqm") return "m²";
     return product.pricing_unit;
   }
   const name = String(product.name || "").toLowerCase();
-  const brand = String(product.brand || "").toLowerCase();
   const desc = String(product.short_description || "").toLowerCase();
-  const text = `${name} ${brand} ${desc}`;
+  const text = `${name} ${desc}`;
 
-  const sqMKeywords = [
-    "tile", "flooring", "marble", "granite", "decking", "slab", "paving",
-    "stone", "cladding", "terrazzo", "porcelain", "quartz", "paver", "wall tile", "floor tile"
-  ];
-
-  if (sqMKeywords.some((kw) => text.includes(kw))) {
-    return "m²";
+  if (text.includes("cable") || text.includes("wire") || text.includes("perimeter fence") || text.includes("conduit")) {
+    return "meter";
+  }
+  if (text.includes("kit") || text.includes("bundle") || text.includes("pack")) {
+    return "set";
+  }
+  if (text.includes("system") || text.includes("nvr") || text.includes("dvr") || text.includes("intercom")) {
+    return "system";
   }
 
   return "piece";

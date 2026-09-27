@@ -429,6 +429,11 @@ export type Database = {
           project_notes: string | null
           quantity: number | null
           unit: string | null
+          unit_price: number | null
+          subtotal: number | null
+          product_name: string | null
+          product_code: string | null
+          product_image: string | null
         }
         Insert: {
           added_at?: string
@@ -441,6 +446,11 @@ export type Database = {
           project_notes?: string | null
           quantity?: number | null
           unit?: string | null
+          unit_price?: number | null
+          subtotal?: number | null
+          product_name?: string | null
+          product_code?: string | null
+          product_image?: string | null
         }
         Update: {
           added_at?: string
@@ -453,6 +463,11 @@ export type Database = {
           project_notes?: string | null
           quantity?: number | null
           unit?: string | null
+          unit_price?: number | null
+          subtotal?: number | null
+          product_name?: string | null
+          product_code?: string | null
+          product_image?: string | null
         }
         Relationships: [
           {
@@ -483,10 +498,13 @@ export type Database = {
           parent_collection_id: string | null
           project_name: string | null
           reference_number: string | null
+          snapshot_data: Json | null
+          total_price: number | null
+          total_items: number | null
           status: string | null
           submitted_at: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           version: number | null
           whatsapp_sent: boolean
         }
@@ -501,10 +519,13 @@ export type Database = {
           parent_collection_id?: string | null
           project_name?: string | null
           reference_number?: string | null
+          snapshot_data?: Json | null
+          total_price?: number | null
+          total_items?: number | null
           status?: string | null
           submitted_at?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           version?: number | null
           whatsapp_sent?: boolean
         }
@@ -519,10 +540,13 @@ export type Database = {
           parent_collection_id?: string | null
           project_name?: string | null
           reference_number?: string | null
+          snapshot_data?: Json | null
+          total_price?: number | null
+          total_items?: number | null
           status?: string | null
           submitted_at?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           version?: number | null
           whatsapp_sent?: boolean
         }

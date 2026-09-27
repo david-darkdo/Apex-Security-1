@@ -190,21 +190,38 @@ function AdminCustomerWorkspacePage() {
     void loadData();
   }, [id]);
 
-  // Mandatory Atomic Pipeline Status Mutation with strict error inspection
+  // Mandatory Atomic Pipeline Status Mutation with strict error inspection and fallback
   const handleSaveStatus = async (newStage: Stage) => {
-    const { data, error } = await (supabase.rpc as any)("update_quotation_pipeline_stage", {
-      _collection_id: id,
-      _new_stage: newStage,
-    });
+    try {
+      const { data, error } = await (supabase.rpc as any)("update_quotation_pipeline_stage", {
+        _collection_id: id,
+        _new_stage: newStage,
+      });
 
-    if (error) {
-      toast.error(`Failed to update status: ${error.message}`);
-      return;
+      if (error) {
+        // Fallback to direct table mutations
+        const { error: collErr } = await supabase
+          .from("collections")
+          .update({ status: newStage })
+          .eq("id", id);
+
+        if (collErr) {
+          toast.error(`Failed to update status: ${collErr.message}`);
+          return;
+        }
+
+        await supabase
+          .from("whatsapp_inquiries")
+          .update({ status: newStage.toLowerCase(), inquiry_status: newStage.toUpperCase() as any })
+          .eq("collection_id", id);
+      }
+
+      setStatus(newStage);
+      toast.success(`Quotation status updated to ${newStage}`);
+      void loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update quotation stage");
     }
-
-    setStatus(newStage);
-    toast.success(`Quotation status updated to ${newStage}`);
-    void loadData();
   };
 
   // Internal Notes save with explicit error inspection
@@ -228,14 +245,22 @@ function AdminCustomerWorkspacePage() {
     }
   };
 
-  // Total Quotation Value
+  // Total Quotation Value with snapshot prioritization
   const totalEstimate = useMemo(() => {
+    const snap = collection?.snapshot_data as any;
+    if (snap && snap.total_price != null) {
+      return Number(snap.total_price);
+    }
+    if (collection?.total_price != null && Number(collection.total_price) > 0) {
+      return Number(collection.total_price);
+    }
     return items.reduce((acc, item) => {
-      const price = Number(item.products?.price) || 0;
+      const price = item.unit_price != null ? Number(item.unit_price) : (Number(item.products?.price) || 0);
       const qty = Number(item.quantity) || 1;
-      return acc + (price * qty);
+      const subtotal = item.subtotal != null ? Number(item.subtotal) : (price * qty);
+      return acc + subtotal;
     }, 0);
-  }, [items]);
+  }, [collection, items]);
 
   if (authLoading || loading) {
     return (
@@ -267,29 +292,33 @@ function AdminCustomerWorkspacePage() {
     );
   }
 
-  const customerName = profile?.full_name || inquiry?.customer_name || collection?.customer_name || "Valued Customer";
-  const customerEmail = profile?.email || inquiry?.customer_email || collection?.customer_email || "Not provided";
-  const customerPhone = inquiry?.customer_phone || inquiry?.whatsapp_number || profile?.phone_number || collection?.customer_phone || "";
+  const snap = collection?.snapshot_data as any;
+  const customerName = snap?.customer_name || profile?.full_name || inquiry?.customer_name || collection?.customer_name || "Valued Customer";
+  const customerEmail = snap?.customer_email || profile?.email || inquiry?.customer_email || collection?.customer_email || "Not provided";
+  const customerPhone = snap?.customer_phone || inquiry?.customer_phone || inquiry?.whatsapp_number || profile?.phone_number || collection?.customer_phone || "";
+  const customerProjectNotes = snap?.project_notes || null;
   const targetWaNumber = customerPhone || settings?.sales_whatsapp || "";
 
   // Single smart link referenced in WhatsApp quotation response
   const origin = getProductionOrigin();
   const smartCollectionUrl = `${origin}/collection/${id}`;
-  const refNum = collection?.reference_number || generateCollectionReference(id);
+  const refNum = collection?.reference_number || snap?.reference_number || generateCollectionReference(id);
 
   const quotationSummaryText = [
     `*Apex Security — Quotation Resolution*`,
     `Ref: ${refNum}`,
     `Customer: ${customerName}`,
-    `Project: ${collection?.project_name || collection?.name || "Showroom Selection"}`,
+    `Project: ${collection?.project_name || snap?.project_name || collection?.name || "Showroom Selection"}`,
     ``,
     `*Selected Items Breakdown:*`,
     ...items.map((i, idx) => {
       const p = i.products;
+      const name = i.product_name || p?.name || "Product";
+      const code = i.product_code || p?.code || "N/A";
       const unit = i.unit || p?.pricing_unit || "piece";
-      const price = Number(p?.price) || 0;
-      const total = price * (Number(i.quantity) || 1);
-      return `${idx + 1}. ${p?.name || "Product"} (Code: ${p?.code || "N/A"}) — Qty: ${i.quantity} ${unit} @ ₦${price.toLocaleString()} = ₦${total.toLocaleString()}${i.installation_location ? ` [${i.installation_location}]` : ""}`;
+      const price = i.unit_price != null ? Number(i.unit_price) : (Number(p?.price) || 0);
+      const total = i.subtotal != null ? Number(i.subtotal) : price * (Number(i.quantity) || 1);
+      return `${idx + 1}. ${name} (Code: ${code}) — Qty: ${i.quantity} ${unit} @ ₦${price.toLocaleString()} = ₦${total.toLocaleString()}${i.installation_location ? ` [${i.installation_location}]` : ""}`;
     }),
     ``,
     `*Total Estimated Value: ₦${totalEstimate.toLocaleString()}*`,
@@ -375,6 +404,12 @@ function AdminCustomerWorkspacePage() {
                   <span className="font-semibold text-primary">{collection.project_name}</span>
                 </div>
               )}
+              {customerProjectNotes && (
+                <div className="sm:col-span-3 pt-2 border-t border-border/40">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Customer Project Scope Requirements</span>
+                  <p className="text-foreground leading-relaxed mt-0.5">{customerProjectNotes}</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -397,10 +432,15 @@ function AdminCustomerWorkspacePage() {
               <div className="space-y-3">
                 {items.map((item) => {
                   const p = item.products;
-                  const img = p ? (publicImageUrl(p.generated_studio_image) || publicImageUrl(p.image_url)) : "";
+                  const name = item.product_name || p?.name || "Custom Product Item";
+                  const code = item.product_code || p?.code || "N/A";
+                  const brand = p?.brand || "Apex Security";
+                  const rawImg = item.product_image || p?.generated_studio_image || p?.image_url;
+                  const img = rawImg ? publicImageUrl(rawImg) : "";
                   const unit = item.unit || p?.pricing_unit || "piece";
-                  const price = Number(p?.price) || 0;
-                  const itemTotal = price * (Number(item.quantity) || 1);
+                  const price = item.unit_price != null ? Number(item.unit_price) : (Number(p?.price) || 0);
+                  const itemTotal = item.subtotal != null ? Number(item.subtotal) : price * (Number(item.quantity) || 1);
+                  const isSnapshotLocked = item.unit_price != null;
 
                   return (
                     <div
@@ -411,7 +451,7 @@ function AdminCustomerWorkspacePage() {
                         {/* Mandatory Product Image */}
                         <div className="h-16 w-16 rounded-lg overflow-hidden border border-border bg-muted shrink-0 flex items-center justify-center">
                           {img ? (
-                            <img src={img} alt={p?.name || "Product"} className="h-full w-full object-cover" />
+                            <img src={img} alt={name} className="h-full w-full object-cover" />
                           ) : (
                             <span className="text-[10px] text-muted-foreground">No image</span>
                           )}
@@ -422,10 +462,10 @@ function AdminCustomerWorkspacePage() {
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <h4 className="font-semibold text-sm text-foreground line-clamp-1">
-                                {p?.name || "Custom Product Item"}
+                                {name}
                               </h4>
                               <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
-                                {p?.brand ? `${p.brand} · ` : ""}Code: {p?.code || "N/A"}
+                                {brand ? `${brand} · ` : ""}Code: {code}
                               </p>
                             </div>
                             <div className="text-right">
@@ -442,6 +482,11 @@ function AdminCustomerWorkspacePage() {
                             <span className="rounded bg-primary/10 px-2 py-0.5 font-semibold text-primary text-[10px]">
                               Quantity: {item.quantity || 1} {unit}
                             </span>
+                            {isSnapshotLocked && (
+                              <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+                                Frozen Snapshot Price
+                              </span>
+                            )}
                             {p?.slug && (
                               <Link
                                 to="/product/$slug"

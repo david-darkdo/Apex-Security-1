@@ -2,12 +2,13 @@
 -- Project: Apex Security One
 -- Target Supabase: arsfzeuhtgrgubzojiix
 
--- 1. Add immutable quotation snapshot metadata to collections table
+-- 1. Add immutable quotation snapshot metadata to collections table & allow guest quotes
 ALTER TABLE public.collections 
   ADD COLUMN IF NOT EXISTS reference_number TEXT,
   ADD COLUMN IF NOT EXISTS snapshot_data JSONB,
   ADD COLUMN IF NOT EXISTS total_price NUMERIC DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS total_items INTEGER DEFAULT 0;
+  ADD COLUMN IF NOT EXISTS total_items INTEGER DEFAULT 0,
+  ALTER COLUMN user_id DROP NOT NULL;
 
 -- 2. Add line-level snapshot values to collection_items table
 ALTER TABLE public.collection_items
@@ -39,7 +40,13 @@ BEGIN
   -- 2. Update linked inquiry if present
   UPDATE public.whatsapp_inquiries
   SET status = LOWER(_new_stage),
-      inquiry_status = UPPER(_new_stage),
+      inquiry_status = CASE 
+        WHEN UPPER(_new_stage) IN ('NEW', 'CONTACTED', 'NEGOTIATING', 'QUOTED', 'CLOSED', 'LOST') 
+          THEN UPPER(_new_stage)::public.inquiry_pipeline_status
+        WHEN UPPER(_new_stage) IN ('APPROVED', 'COMPLETED') THEN 'CLOSED'::public.inquiry_pipeline_status
+        WHEN UPPER(_new_stage) = 'CANCELLED' THEN 'LOST'::public.inquiry_pipeline_status
+        ELSE 'NEW'::public.inquiry_pipeline_status
+      END,
       updated_at = NOW()
   WHERE collection_id = _collection_id;
 

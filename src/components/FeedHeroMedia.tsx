@@ -79,7 +79,7 @@ export function FeedHeroMedia({ items }: FeedHeroMediaProps) {
   }
 
   return (
-    <section 
+    <section
       aria-label="Showroom Visual Discovery Feed"
       className="relative w-full overflow-hidden bg-neutral-950 aspect-[16/9] sm:aspect-[21/9] lg:aspect-[24/9] select-none group"
     >
@@ -117,7 +117,7 @@ export function FeedHeroMedia({ items }: FeedHeroMediaProps) {
             {item.title && (
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 pointer-events-none">
                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-xs sm:text-sm font-bold tracking-wide uppercase border border-white/20 shadow-lg animate-in fade-in duration-500">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   {item.title}
                 </span>
               </div>
@@ -178,7 +178,9 @@ export function FeedHeroMedia({ items }: FeedHeroMediaProps) {
                 }}
                 aria-label={`Go to slide ${idx + 1}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  currentIndex === idx ? "w-7 bg-amber-400 shadow-xs" : "w-1.5 bg-white/40 hover:bg-white/75"
+                  currentIndex === idx
+                    ? "w-7 bg-primary shadow-xs"
+                    : "w-1.5 bg-white/40 hover:bg-white/75"
                 }`}
               />
             ))}

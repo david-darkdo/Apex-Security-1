@@ -1,10 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useInfiniteQuery, useSuspenseQuery, queryOptions, infiniteQueryOptions } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useSuspenseQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
 import { FeedHeroMedia } from "@/components/FeedHeroMedia";
-import { fetchFeedProductsPaginated, fetchTaxonomy, fetchFeedHeroMedia, type FeedFilters, type CursorParam } from "@/lib/catalog";
+import {
+  fetchFeedProductsPaginated,
+  fetchTaxonomy,
+  fetchFeedHeroMedia,
+  type FeedFilters,
+  type CursorParam,
+} from "@/lib/catalog";
 import { ChevronDown, Loader2 } from "lucide-react";
 
 type FeedSearch = {
@@ -54,7 +65,8 @@ export const Route = createFileRoute("/")({
       { title: "Discover — Apex Security Digital Showroom" },
       {
         name: "description",
-        content: "Discover advanced CCTV systems, biometric smart locks, armored security doors, and modern access control solutions at Apex Security.",
+        content:
+          "Discover advanced CCTV systems, biometric smart locks, armored security doors, and modern access control solutions at Apex Security.",
       },
     ],
   }),
@@ -94,8 +106,7 @@ function FeedPage() {
       to: "/",
       search: { ...search, category: slug, subcategory: undefined },
     });
-  const setSub = (slug?: string) =>
-    navigate({ to: "/", search: { ...search, subcategory: slug } });
+  const setSub = (slug?: string) => navigate({ to: "/", search: { ...search, subcategory: slug } });
 
   const allProducts = feedQuery.data?.pages.flatMap((page) => page.items) ?? [];
   const totalCount = feedQuery.data?.pages[0]?.totalCount ?? 0;
@@ -111,7 +122,7 @@ function FeedPage() {
           void feedQuery.fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     const el = loadMoreRef.current;
     if (el) observer.observe(el);
@@ -123,9 +134,7 @@ function FeedPage() {
   return (
     <AppShell>
       {/* Edge-to-Edge Visual Feed Hero Media Carousel */}
-      {feedHeroItems.length > 0 && (
-        <FeedHeroMedia items={feedHeroItems} />
-      )}
+      {feedHeroItems.length > 0 && <FeedHeroMedia items={feedHeroItems} />}
 
       <div className="container-app pt-4 sm:pt-6 pb-12 space-y-4">
         {/* Product Attributes / Taxonomy Filters immediately below hero */}
@@ -180,18 +189,14 @@ function FeedPage() {
         {/* Product Grid */}
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {feedQuery.isLoading
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))
+            ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : allProducts.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
 
         {/* Empty state */}
         {!feedQuery.isLoading && allProducts.length === 0 && (
           <div className="mt-10 rounded-xl border border-dashed border-border p-10 text-center bg-card/40">
-            <p className="text-sm text-muted-foreground">
-              No products match these filters yet.
-            </p>
+            <p className="text-sm text-muted-foreground">No products match these filters yet.</p>
             <Link
               to="/"
               search={{}}
@@ -262,8 +267,8 @@ function Pill({
       onClick={onClick}
       className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition ${
         active
-          ? "border-[#C5A059] bg-[#0F1115] text-[#D4AF37] shadow-md ring-1 ring-[#C5A059]/40"
-          : "border-[#E5E0D8] bg-white text-gray-600 hover:border-[#C5A059] hover:text-[#ea580c]"
+          ? "border-primary bg-primary text-canvas shadow-md ring-1 ring-primary/40"
+          : "border-border bg-surface-2 text-muted-foreground hover:border-primary/50 hover:text-foreground"
       }`}
     >
       {children}

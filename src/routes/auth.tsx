@@ -51,7 +51,9 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.user) {
-          try { await mergeGuestIntoUser(data.user.id); } catch {}
+          try {
+            await mergeGuestIntoUser(data.user.id);
+          } catch {}
           toast.success("Account created");
           navigate({ to: (search.redirectTo as any) || "/collection" });
         } else {
@@ -61,7 +63,9 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (data.user) {
-          try { await mergeGuestIntoUser(data.user.id); } catch {}
+          try {
+            await mergeGuestIntoUser(data.user.id);
+          } catch {}
         }
         toast.success("Welcome back");
         navigate({ to: (search.redirectTo as any) || "/collection" });
@@ -91,16 +95,20 @@ function AuthPage() {
   return (
     <div className="container-app max-w-md py-10">
       <div className="flex items-center justify-between gap-4 mb-4">
-        <h1 className="font-display text-2xl font-semibold">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+        <h1 className="font-display text-2xl font-semibold">
+          {mode === "signin" ? "Sign in" : "Create account"}
+        </h1>
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A059]/40 bg-[#0F1115] px-3.5 py-1.5 text-xs font-bold text-[#D4AF37] hover:bg-[#1A1D24] transition shrink-0 shadow-xs"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3.5 py-1.5 text-xs font-bold text-foreground hover:border-primary/50 hover:text-primary transition shrink-0 shadow-xs"
         >
           <span>Storefront Feed</span>
         </Link>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        {mode === "signin" ? "Sync your collection across devices and submit quotation requests." : "Save & share collections, push to WhatsApp."}
+        {mode === "signin"
+          ? "Sync your collection across devices and submit quotation requests."
+          : "Save & share collections, push to WhatsApp."}
       </p>
 
       <button
@@ -108,7 +116,9 @@ function AuthPage() {
         disabled={busy}
         className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-surface-2 transition"
       >
-        <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-[10px] font-bold text-[#4285F4]">G</span>
+        <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-[10px] font-bold text-[#4285F4]">
+          G
+        </span>
         Continue with Google
       </button>
 
@@ -154,14 +164,17 @@ function AuthPage() {
 
       <p className="mt-5 text-center text-sm text-muted-foreground">
         {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
-        <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="font-medium text-primary hover:underline">
+        <button
+          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          className="font-medium text-primary hover:underline"
+        >
           {mode === "signin" ? "Create account" : "Sign in"}
         </button>
       </p>
       <div className="mt-6 text-center">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#C5A059]/40 bg-[#0F1115] px-4 py-2 text-xs font-bold text-[#D4AF37] hover:bg-[#1A1D24] transition shadow-xs"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-4 py-2 text-xs font-bold text-foreground hover:border-primary/50 hover:text-primary transition shadow-xs"
         >
           <span>Storefront Feed</span>
         </Link>

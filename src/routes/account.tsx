@@ -21,7 +21,9 @@ export const Route = createFileRoute("/account")({
 function AccountPage() {
   const { user, loading, isAdmin, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; email: string | null } | null>(
+    null,
+  );
   const [fullName, setFullName] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -56,18 +58,27 @@ function AccountPage() {
     else toast.success("Profile updated");
   };
 
-  if (loading) return <div className="container-app py-10 text-sm text-muted-foreground">Loading…</div>;
+  if (loading)
+    return <div className="container-app py-10 text-sm text-muted-foreground">Loading…</div>;
 
   if (!user) {
     return (
       <div className="container-app py-10">
         <h1 className="font-display text-2xl font-semibold">Account</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in to manage your profile and collection.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sign in to manage your profile and collection.
+        </p>
         <div className="mt-6 flex gap-3">
-          <Link to="/auth" className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          <Link
+            to="/auth"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
             Sign in
           </Link>
-          <Link to="/collection" className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:border-primary">
+          <Link
+            to="/collection"
+            className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:border-primary"
+          >
             My Collection
           </Link>
         </div>
@@ -126,34 +137,53 @@ function AccountPage() {
       </section>
 
       <section className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Link to="/collection" search={{ autoPush: false }} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-emerald-500 transition">
+        <Link
+          to="/collection"
+          search={{ autoPush: false }}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-emerald-500 transition"
+        >
           <Bookmark className="h-5 w-5 text-emerald-600" />
           <div>
             <div className="font-medium text-sm">Active Project Workspace</div>
-            <div className="text-xs text-muted-foreground">Current working project draft & products</div>
+            <div className="text-xs text-muted-foreground">
+              Current working project draft & products
+            </div>
           </div>
         </Link>
 
-        <Link to="/my-collections" className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-amber-500 transition">
-          <Bookmark className="h-5 w-5 text-amber-600" />
+        <Link
+          to="/my-collections"
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/50 transition"
+        >
+          <Bookmark className="h-5 w-5 text-primary" />
           <div>
             <div className="font-medium text-sm">My Collections History</div>
-            <div className="text-xs text-muted-foreground">Immutable records of submitted quotation requests</div>
+            <div className="text-xs text-muted-foreground">
+              Immutable records of submitted quotation requests
+            </div>
           </div>
         </Link>
 
         {isAdmin && (
-          <Link to="/admin" className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary transition">
+          <Link
+            to="/admin"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary transition"
+          >
             <Shield className="h-5 w-5 text-primary" />
             <div>
               <div className="font-medium text-sm">Admin CRM & Quotations</div>
-              <div className="text-xs text-muted-foreground">Manage products & quotation pipeline</div>
+              <div className="text-xs text-muted-foreground">
+                Manage products & quotation pipeline
+              </div>
             </div>
           </Link>
         )}
 
         {isSuperAdmin && (
-          <Link to="/settings" className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary transition">
+          <Link
+            to="/settings"
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary transition"
+          >
             <SettingsIcon className="h-5 w-5 text-primary" />
             <div>
               <div className="font-medium text-sm">Company Settings</div>

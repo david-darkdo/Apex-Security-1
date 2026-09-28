@@ -15,7 +15,8 @@ import {
   Maximize2
 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { getCloudinarySignatureServer, uploadLargeMediaFileClient } from "@/lib/upload-server";
 
 interface CropRect {
   x: number; // percentage (0..100)
@@ -34,36 +35,6 @@ interface ImageEditorModalProps {
 
 type AspectRatio = "free" | "1:1" | "4:3" | "16:9";
 
-async function uploadEditedBlob(blob: Blob, productId?: string): Promise<string> {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error("Missing Cloudinary configuration (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET)");
-  }
-
-  const file = new File([blob], `edited-photo-${Date.now()}.png`, { type: "image/png" });
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
-  if (productId) {
-    formData.append("folder", `products/${productId}`);
-  }
-
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Cloudinary upload failed: ${text}`);
-  }
-
-  const data = await res.json();
-  return data.secure_url;
-}
-
 export function ImageEditorModal({
   isOpen,
   imageUrl,
@@ -71,6 +42,7 @@ export function ImageEditorModal({
   onSave,
   productId,
 }: ImageEditorModalProps) {
+  const getSignatureFn = useServerFn(getCloudinarySignatureServer);
   const [rotation, setRotation] = useState<number>(0); // 0, 90, 180, 270
   const [flipH, setFlipH] = useState<boolean>(false);
   const [flipV, setFlipV] = useState<boolean>(false);
@@ -310,8 +282,18 @@ export function ImageEditorModal({
 
       if (!blob) throw new Error("Failed to render canvas image blob");
 
-      // Upload edited blob to Cloudinary
-      const newUrl = await uploadEditedBlob(blob, productId);
+      // Use the existing signed Cloudinary pipeline used by the product uploader.
+      // Do not use an unsigned upload_preset here.
+      const editedFile = new File([blob], `edited-photo-${Date.now()}.png`, {
+        type: "image/png",
+      });
+      const folder = productId ? `products/${productId}` : "products";
+      const newUrl = await uploadLargeMediaFileClient({
+        file: editedFile,
+        folder,
+        resourceType: "image",
+        getSignatureFn,
+      });
       await onSave(newUrl);
 
       toast.success("Photo cropped & rotated successfully!");

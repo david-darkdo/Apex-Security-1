@@ -22,6 +22,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { getProductionOrigin } from "@/lib/origin";
 
 function NotFoundComponent() {
   return (
@@ -143,13 +144,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const origin = getProductionOrigin();
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Apex Security Ltd",
     "legalName": "Apex Security Ltd",
-    "url": "https://apex-security-1.vercel.app",
-    "logo": "https://apex-security-1.vercel.app/apex-logo.png",
+    "url": origin,
+    "logo": `${origin}/apex-logo.png`,
     "description": "Apex Security Ltd provides CCTV cameras, solar CCTV systems, smart locks, security doors and modern door solutions in Abuja, Nigeria, and nationwide.",
     "address": {
       "@type": "PostalAddress",
@@ -169,10 +171,10 @@ function RootShell({ children }: { children: ReactNode }) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Apex Security Digital Showroom",
-    "url": "https://apex-security-1.vercel.app",
+    "url": origin,
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://apex-security-1.vercel.app/search?q={search_term_string}",
+      "target": `${origin}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   };
@@ -281,8 +283,8 @@ function RootAppWrapper() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": (settings as any)?.company_name || "Apex Security Ltd",
-    "url": typeof window !== "undefined" ? window.location.origin : "https://apex-security-1.vercel.app",
-    "logo": (settings as any)?.company_logo || (typeof window !== "undefined" ? `${window.location.origin}/apex-logo.png` : "https://apex-security-1.vercel.app/apex-logo.png"),
+    "url": typeof window !== "undefined" ? window.location.origin : getProductionOrigin(),
+    "logo": (settings as any)?.company_logo || (typeof window !== "undefined" ? `${window.location.origin}/apex-logo.png` : `${getProductionOrigin()}/apex-logo.png`),
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": settings?.support_whatsapp || "+2347063492581",

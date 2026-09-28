@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://apex-security-1.vercel.app/sitemap-pages.xml</loc>
+    <loc>https://apexsecurity.com.ng/sitemap-pages.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://apex-security-1.vercel.app/sitemap-categories.xml</loc>
+    <loc>https://apexsecurity.com.ng/sitemap-categories.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://apex-security-1.vercel.app/sitemap-products.xml</loc>
+    <loc>https://apexsecurity.com.ng/sitemap-products.xml</loc>
   </sitemap>
   <sitemap>
-    <loc>https://apex-security-1.vercel.app/sitemap-images.xml</loc>
+    <loc>https://apexsecurity.com.ng/sitemap-images.xml</loc>
   </sitemap>
 </sitemapindex>

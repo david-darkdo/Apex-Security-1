@@ -13,4 +13,4 @@ Allow: /
 User-agent: Googlebot-Image
 Allow: /
 
-Sitemap: https://apex-security-1.vercel.app/sitemap.xml
+Sitemap: https://apexsecurity.com.ng/sitemap.xml

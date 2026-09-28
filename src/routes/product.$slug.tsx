@@ -492,8 +492,12 @@ function ProductPage() {
           ))}
         </nav>
 
-        {/* Gallery Grid: Fixed Original Image (Left) + Switchable Installation Gallery (Right) */}
-        <div className="mt-3 grid gap-6 md:grid-cols-2">
+        {/* Gallery Grid: Fixed Original Image (Left) + Switchable Installation Gallery (Right, if available) */}
+        <div
+          className={`mt-3 ${
+            installationImages.length > 0 ? "grid gap-6 md:grid-cols-2" : "max-w-xl"
+          }`}
+        >
           {/* FIXED ORIGINAL MANUFACTURER IMAGE (Source of Truth — non-carousel) */}
           <div className="flex flex-col">
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm aspect-square flex items-center justify-center">
@@ -510,68 +514,68 @@ function ProductPage() {
                 </div>
               )}
             </div>
-            <div className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
-              Original Manufacturer Image (Source of Truth)
-            </div>
-          </div>
-
-          {/* SWITCHABLE INSTALLATION IMAGES GALLERY (Right) */}
-          <div className="flex flex-col">
-            {/* Full Visual Square Main Installation Viewport */}
-            <div
-              className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm aspect-square flex items-center justify-center"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-            >
-              {activeInstalledImage ? (
-                <img
-                  key={activeInstalledImage}
-                  src={activeInstalledImage}
-                  alt={`${product.name} — Installation View`}
-                  loading="lazy"
-                  onClick={() => setLightboxImg(activeInstalledImage)}
-                  className="w-full h-full object-cover cursor-zoom-in hover:scale-[1.01] transition-all duration-300"
-                />
-              ) : (
-                <div className="text-xs text-muted-foreground italic flex h-full items-center justify-center p-6 text-center">
-                  No installation preview images uploaded yet
-                </div>
-              )}
-            </div>
-
-            {/* Compact Photograph Thumbnail Rail (OUTSIDE & BELOW card — Zero Text Labels) */}
-            {installationImages.length > 1 && (
-              <div
-                className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-              >
-                {installationImages.map((imgUrl, idx) => {
-                  const isActive = activeInstallationIndex === idx;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveInstallationIndex(idx)}
-                      aria-label={`Installation photograph ${idx + 1}`}
-                      className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer snap-start ${
-                        isActive
-                          ? "border-primary ring-2 ring-primary/40 shadow-md scale-100 opacity-100"
-                          : "border-border/80 hover:border-primary/50 opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={imgUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </button>
-                  );
-                })}
+            {installationImages.length > 0 && (
+              <div className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
+                Original Manufacturer Image (Source of Truth)
               </div>
             )}
           </div>
+
+          {/* SWITCHABLE INSTALLATION IMAGES GALLERY (Right) - Rendered ONLY if installationImages.length > 0 */}
+          {installationImages.length > 0 && (
+            <div className="flex flex-col">
+              {/* Full Visual Square Main Installation Viewport */}
+              <div
+                className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm aspect-square flex items-center justify-center"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                {activeInstalledImage && (
+                  <img
+                    key={activeInstalledImage}
+                    src={activeInstalledImage}
+                    alt={`${product.name} — Installation View`}
+                    loading="lazy"
+                    onClick={() => setLightboxImg(activeInstalledImage)}
+                    className="w-full h-full object-cover cursor-zoom-in hover:scale-[1.01] transition-all duration-300"
+                  />
+                )}
+              </div>
+
+              {/* Compact Photograph Thumbnail Rail (OUTSIDE & BELOW card — Zero Text Labels) */}
+              {installationImages.length > 1 && (
+                <div
+                  className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x"
+                  onMouseEnter={() => setIsPaused(true)}
+                  onMouseLeave={() => setIsPaused(false)}
+                >
+                  {installationImages.map((imgUrl, idx) => {
+                    const isActive = activeInstallationIndex === idx;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveInstallationIndex(idx)}
+                        aria-label={`Installation photograph ${idx + 1}`}
+                        className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer snap-start ${
+                          isActive
+                            ? "border-primary ring-2 ring-primary/40 shadow-md scale-100 opacity-100"
+                            : "border-border/80 hover:border-primary/50 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Product Details Section */}

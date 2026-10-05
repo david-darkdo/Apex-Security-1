@@ -281,7 +281,7 @@ function SearchPage() {
               onFocus={() => {
                 if (suggestions.length > 0) setShowSuggestions(true);
               }}
-              placeholder='Try "sink", "smart toilet", "ON-KIT-000001", "black matte", "virony"…'
+              placeholder='Try "security door", "tuya smart lock", "APX-DOO-000001", "solar street light", "cctv camera"…'
               className="w-full rounded-2xl border-2 border-border/80 bg-card py-3.5 pl-12 pr-24 text-sm font-medium outline-none transition focus:border-primary shadow-xs"
             />
             {inputValue && (

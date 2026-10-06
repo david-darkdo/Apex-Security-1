@@ -72,7 +72,7 @@ function ProductLibrary() {
     let q = supabase
       .from("products")
       .select(
-        "id,code,name,production_name,finish_name,price,status,featured_homepage,featured_feed,hidden,ai_status,created_at,image_url,generated_studio_image,type_id,category_id,subcategory_id,family_id,deleted_at",
+        "id,code,name,production_name,finish_name,price,original_price,pricing_unit,status,featured_homepage,featured_feed,hidden,ai_status,created_at,image_url,generated_studio_image,type_id,category_id,subcategory_id,family_id,deleted_at",
       )
       .order("created_at", { ascending: false })
       .limit(500);
@@ -338,9 +338,51 @@ function ProductLibrary() {
                   <td className="p-2 text-muted-foreground">{r.production_name ?? "—"}</td>
                   <td className="p-2 text-muted-foreground">{r.finish_name ?? "—"}</td>
                   <td className="p-2 text-muted-foreground">{type} › {cat} › {sub} › {fam}</td>
-                  <td className="p-2">
-                    ₦{Number(r.price).toLocaleString()}{" "}
-                    <span className="text-[10px] font-normal text-muted-foreground">/{r.pricing_unit || "piece"}</span>
+                  <td className="p-2 min-w-[300px]">
+                    <InlinePriceEditor
+                      price={r.price}
+                      originalPrice={r.original_price}
+                      pricingUnit={r.pricing_unit}
+                      onSave={async ({ price, originalPrice, pricingUnit }) => {
+                        const { error } = await supabase
+                          .from("products")
+                          .update({
+                            price,
+                            original_price: originalPrice,
+                            pricing_unit: pricingUnit,
+                          } as any)
+                          .eq("id", r.id);
+
+                        if (error) {
+                          toast.error(`Price update failed: ${error.message}`);
+                          throw error;
+                        }
+
+                        setRows((current) =>
+                          current.map((item) =>
+                            item.id === r.id
+                              ? {
+                                  ...item,
+                                  price,
+                                  original_price: originalPrice,
+                                  pricing_unit: pricingUnit,
+                                }
+                              : item,
+                          ),
+                        );
+
+                        const { error: indexError } = await supabase.rpc(
+                          "rebuild_search_index" as any,
+                          { _product_id: r.id } as any,
+                        );
+                        if (indexError) {
+                          console.warn("Inline price save: search index rebuild failed:", indexError.message);
+                          toast.warning("Price saved. Search index refresh needs attention.");
+                        } else {
+                          toast.success("Price saved");
+                        }
+                      }}
+                    />
                   </td>
                   <td className="p-2"><Badge>{r.status}</Badge></td>
                   <td className="p-2 space-x-1">
@@ -380,6 +422,132 @@ function ProductLibrary() {
             })}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function InlinePriceEditor({
+  price,
+  originalPrice,
+  pricingUnit,
+  onSave,
+}: {
+  price: number | null | undefined;
+  originalPrice?: number | null;
+  pricingUnit?: string | null;
+  onSave: (values: {
+    price: number;
+    originalPrice: number | null;
+    pricingUnit: string;
+  }) => Promise<void>;
+}) {
+  const [unit, setUnit] = useState(pricingUnit || "piece");
+  const [original, setOriginal] = useState(
+    originalPrice === null || originalPrice === undefined ? "" : String(originalPrice),
+  );
+  const [normal, setNormal] = useState(price === null || price === undefined ? "" : String(price));
+  const [savingLocal, setSavingLocal] = useState(false);
+
+  useEffect(() => {
+    setUnit(pricingUnit || "piece");
+    setOriginal(originalPrice === null || originalPrice === undefined ? "" : String(originalPrice));
+    setNormal(price === null || price === undefined ? "" : String(price));
+  }, [price, originalPrice, pricingUnit]);
+
+  const isSaving = savingLocal;
+
+  const handleSave = async () => {
+    const parsedPrice = Number(normal);
+    if (!normal.trim() || !Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      toast.error("Enter a valid normal price.");
+      return;
+    }
+
+    const parsedOriginal = original.trim() === "" ? null : Number(original);
+    if (parsedOriginal !== null && (!Number.isFinite(parsedOriginal) || parsedOriginal < 0)) {
+      toast.error("Enter a valid original price or leave it empty.");
+      return;
+    }
+
+    setSavingLocal(true);
+    try {
+      await onSave({
+        price: parsedPrice,
+        originalPrice: parsedOriginal,
+        pricingUnit: unit || "piece",
+      });
+    } catch {
+      // Parent handler already reports the database error; keep entered values intact.
+    } finally {
+      setSavingLocal(false);
+    }
+  };
+
+  return (
+    <div className="w-[285px] rounded-lg border border-border bg-card p-2 shadow-sm">
+      <div className="flex items-center gap-2">
+        <select
+          aria-label="Pricing unit"
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+          disabled={isSaving}
+          className="min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-2 text-xs outline-none focus:border-primary disabled:opacity-60"
+        >
+          <option value="piece">₦ / piece</option>
+          <option value="set">₦ / set</option>
+          <option value="unit">₦ / unit</option>
+          <option value="sqm">₦ / sqm (m²)</option>
+          <option value="carton">₦ / carton</option>
+          <option value="box">₦ / box</option>
+          <option value="metre">₦ / metre</option>
+          <option value="roll">₦ / roll</option>
+        </select>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving}
+          className="shrink-0 rounded-md bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isSaving ? "Saving…" : "Save"}
+        </button>
+      </div>
+
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Original Price
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            value={original}
+            onChange={(e) => setOriginal(e.target.value)}
+            placeholder="Optional"
+            disabled={isSaving}
+            className="mt-1 w-full rounded-md border border-input bg-background px-2 py-2 text-xs outline-none focus:border-primary disabled:opacity-60"
+          />
+        </div>
+
+        <div>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Normal Price
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            value={normal}
+            onChange={(e) => setNormal(e.target.value)}
+            placeholder="Enter price"
+            disabled={isSaving}
+            className="mt-1 w-full rounded-md border border-input bg-background px-2 py-2 text-xs outline-none focus:border-primary disabled:opacity-60"
+          />
+        </div>
       </div>
     </div>
   );

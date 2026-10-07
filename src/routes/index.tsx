@@ -69,6 +69,12 @@ export const Route = createFileRoute("/")({
           "Discover advanced CCTV systems, biometric smart locks, armored security doors, and modern access control solutions at Apex Security.",
       },
     ],
+    links: [
+      {
+        rel: "canonical",
+        href: "https://apexsecurity.com.ng/",
+      },
+    ],
   }),
   component: FeedPage,
   errorComponent: ({ error }) => {

@@ -1,42 +1,28 @@
+export const CANONICAL_ORIGIN = "https://apexsecurity.com.ng";
+
 export function getProductionOrigin(request?: Request): string {
-  // 1. Client-side browser execution: always use window.location.origin
+  // 1. Client-side browser execution: allow localhost in local development
   if (typeof window !== "undefined") {
-    return window.location.origin;
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      return window.location.origin;
+    }
+    return CANONICAL_ORIGIN;
   }
 
-  // 2. Incoming request context if provided (SSR headers)
+  // 2. Incoming request context: allow localhost in local development
   if (request) {
-    const proto = request.headers.get("x-forwarded-proto") || "https";
     const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
-    if (host) {
+    if (host && (host.includes("localhost") || host.includes("127.0.0.1"))) {
+      const proto = request.headers.get("x-forwarded-proto") || "http";
       return `${proto}://${host}`;
     }
   }
 
-  // 3. Explicit canonical site URL configuration
-  if (process.env.SITE_URL) {
-    const url = process.env.SITE_URL.trim().replace(/\/$/, "");
-    return url.startsWith("http") ? url : `https://${url}`;
+  // 3. In local node development mode
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
   }
 
-  // 4. Vercel deployment preview / production URL
-  if (process.env.VERCEL_URL) {
-    const url = process.env.VERCEL_URL.trim().replace(/\/$/, "");
-    return url.startsWith("http") ? url : `https://${url}`;
-  }
-
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    const url = process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/$/, "");
-    return url.startsWith("http") ? url : `https://${url}`;
-  }
-
-  // 5. Client Vite env variable fallback
-  if (process.env.VITE_SITE_URL) {
-    const url = process.env.VITE_SITE_URL.trim().replace(/\/$/, "");
-    return url.startsWith("http") ? url : `https://${url}`;
-  }
-
-  // 6. Safe local fallback
-  return "http://localhost:3000";
+  // 4. Authoritative production canonical origin for all sitemaps, canonical tags, and structured data
+  return CANONICAL_ORIGIN;
 }
-

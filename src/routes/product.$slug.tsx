@@ -373,28 +373,33 @@ function ProductPage() {
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: breadcrumbs.map((b, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: b.label,
-      item: b.path.startsWith("/") ? `${origin}${b.path}` : b.path,
-    })),
+    itemListElement: breadcrumbs.map((b, i) => {
+      const fullUrl = b.path.startsWith("http")
+        ? b.path
+        : `${origin}${b.path.startsWith("/") ? b.path : `/${b.path}`}`;
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.label || "Apex Security",
+        item: fullUrl,
+      };
+    }),
   };
 
   const canonicalProductUrl = getCanonicalProductUrl(product, origin);
+
+  const rawImages = [originalImageUrl, ...installationImages].filter(Boolean);
+  const formattedImages = rawImages.length > 0 
+    ? rawImages.map(img => img.startsWith("http") ? img : `${origin}${img.startsWith("/") ? img : `/${img}`}`)
+    : [`${origin}/apex-logo.png`];
 
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: [originalImageUrl, ...installationImages].filter(Boolean).map((img) => ({
-      "@type": "ImageObject",
-      url: img,
-      name: product.alt_text || product.name,
-      caption: product.seo_description || product.short_description || product.name,
-    })),
+    image: formattedImages,
     description:
-      product.seo_description || product.generated_description || product.short_description || "",
+      product.seo_description || product.generated_description || product.short_description || `${product.name} - High-security architectural solution by Apex Security Ltd Abuja.`,
     sku: product.code || product.id,
     mpn: product.code || product.id,
     brand: {
@@ -404,19 +409,54 @@ function ProductPage() {
     material: product.material || undefined,
     color: product.color || undefined,
     category: taxonomy.subcategory?.name
-      ? `${taxonomy.category?.name || "Material"} > ${taxonomy.subcategory.name}`
-      : taxonomy.category?.name || "Material",
+      ? `${taxonomy.category?.name || "Security"} > ${taxonomy.subcategory.name}`
+      : taxonomy.category?.name || "Security",
     offers: {
       "@type": "Offer",
       url: canonicalProductUrl,
       priceCurrency: "NGN",
-      price: product.price || 0,
+      price: product.price ? Number(product.price).toFixed(2) : "0.00",
       priceValidUntil: "2027-12-31",
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "NG",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnInStore",
+        returnFees: "https://schema.org/FreeReturn",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0.00",
+          currency: "NGN",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "NG",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
+        },
+      },
       priceSpecification: {
         "@type": "UnitPriceSpecification",
-        price: product.price || 0,
+        price: product.price ? Number(product.price).toFixed(2) : "0.00",
         priceCurrency: "NGN",
         unitText: (product as any).pricing_unit || "piece",
       },

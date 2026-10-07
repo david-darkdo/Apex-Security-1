@@ -18,12 +18,11 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
         const origin = getProductionOrigin(request);
         const now = new Date().toISOString();
 
+        // Strictly canonical, indexable public pages (excluding robots-disallowed /favorites and duplicate /home)
         const pages = [
           { loc: `${origin}/`, priority: "1.0", changefreq: "daily" },
-          { loc: `${origin}/home`, priority: "0.9", changefreq: "daily" },
+          { loc: `${origin}/search`, priority: "0.9", changefreq: "daily" },
           { loc: `${origin}/contact`, priority: "0.8", changefreq: "monthly" },
-          { loc: `${origin}/search`, priority: "0.8", changefreq: "daily" },
-          { loc: `${origin}/favorites`, priority: "0.5", changefreq: "weekly" },
         ];
 
         const urlEntries = pages

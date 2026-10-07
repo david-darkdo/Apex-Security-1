@@ -277,27 +277,8 @@ function RootAppWrapper() {
     void registerDevice();
   }, [user?.id, pathname]);
 
-  const loaderData = Route.useLoaderData();
-  const settings = loaderData?.settings;
-  const orgSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": (settings as any)?.company_name || "Apex Security Ltd",
-    "url": typeof window !== "undefined" ? window.location.origin : getProductionOrigin(),
-    "logo": (settings as any)?.company_logo || (typeof window !== "undefined" ? `${window.location.origin}/apex-logo.png` : `${getProductionOrigin()}/apex-logo.png`),
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": settings?.support_whatsapp || "+2347063492581",
-      "contactType": "sales & customer support"
-    }
-  };
-
   return (
     <div className="relative min-h-screen bg-background">
-      <script 
-        type="application/ld+json" 
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} 
-      />
       {/* Full Page Breathing Logo Loading Screen */}
       {(() => {
         const isApiRoute = pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname.startsWith("/api/");

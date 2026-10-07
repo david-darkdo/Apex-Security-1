@@ -42,6 +42,12 @@ export const Route = createFileRoute("/home")({
         content: "Apex Security Ltd provides CCTV systems, smart locks, security doors and modern door solutions for homes, businesses and building projects across Abuja and Nigeria.",
       },
     ],
+    links: [
+      {
+        rel: "canonical",
+        href: "https://apexsecurity.com.ng/",
+      },
+    ],
   }),
   component: HomePage,
 });

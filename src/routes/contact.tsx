@@ -15,6 +15,12 @@ export const Route = createFileRoute("/contact")({
           "Connect with Apex Security Ltd for CCTV cameras, smart locks, security doors and modern door solutions. Our business is located opposite Timber Shed, Dei-Dei, Abuja, Nigeria, and we serve customers nationwide.",
       },
     ],
+    links: [
+      {
+        rel: "canonical",
+        href: "https://apexsecurity.com.ng/contact",
+      },
+    ],
   }),
   component: ContactPage,
 });

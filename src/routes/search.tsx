@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 type SearchParams = {
-  q: string;
+  q?: string;
   type?: string;
   category?: string;
   subcategory?: string;
@@ -44,7 +44,7 @@ function validateSearch(s: Record<string, unknown>): SearchParams {
   };
   const pageNum = Number(s.page);
   return {
-    q: typeof s.q === "string" ? s.q : "",
+    q: pick("q"),
     type: pick("type"),
     category: pick("category"),
     subcategory: pick("subcategory"),
@@ -53,7 +53,7 @@ function validateSearch(s: Record<string, unknown>): SearchParams {
     material: pick("material"),
     finish: pick("finish"),
     color: pick("color"),
-    page: Number.isInteger(pageNum) && pageNum > 0 ? pageNum : 1,
+    page: Number.isInteger(pageNum) && pageNum > 1 ? pageNum : undefined,
   };
 }
 
@@ -72,6 +72,12 @@ export const Route = createFileRoute("/search")({
           "Discover advanced CCTV cameras, biometric smart locks, armored security doors, and access control solutions at Apex Security Ltd.",
       },
     ],
+    links: [
+      {
+        rel: "canonical",
+        href: "https://apexsecurity.com.ng/search",
+      },
+    ],
   }),
   component: SearchPage,
 });
@@ -84,7 +90,7 @@ function SearchPage() {
   const page = search.page || 1;
 
   // Local input state for typing & debounced suggestions
-  const [inputValue, setInputValue] = useState(search.q);
+  const [inputValue, setInputValue] = useState(search.q || "");
   const [suggestions, setSuggestions] = useState<SearchSuggestionItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -92,7 +98,7 @@ function SearchPage() {
 
   // Sync input value with URL when query changes externally
   useEffect(() => {
-    setInputValue(search.q);
+    setInputValue(search.q || "");
   }, [search.q]);
 
   // Click outside to close suggestions
@@ -132,12 +138,13 @@ function SearchPage() {
   const handleSearchSubmit = (targetQuery?: string) => {
     const q = targetQuery !== undefined ? targetQuery : inputValue;
     setShowSuggestions(false);
+    const trimmed = q.trim();
     navigate({
       to: "/search",
       search: {
         ...search,
-        q: q.trim(),
-        page: 1, // Reset to page 1 on new query
+        q: trimmed || undefined,
+        page: undefined, // Reset to page 1 on new query
       },
     });
   };
@@ -161,8 +168,8 @@ function SearchPage() {
     navigate({
       to: "/search",
       search: {
-        q: search.q,
-        page: 1,
+        q: search.q || undefined,
+        page: undefined,
       },
     });
   };
@@ -173,7 +180,7 @@ function SearchPage() {
       queryKey: ["search_v2", search],
       queryFn: () =>
         searchProductsV2({
-          q: search.q,
+          q: search.q || "",
           type: search.type,
           category: search.category,
           subcategory: search.subcategory,
@@ -195,7 +202,7 @@ function SearchPage() {
       queryKey: ["search_facets", search.q, search.type, search.category, search.subcategory],
       queryFn: () =>
         fetchSearchFacets({
-          q: search.q,
+          q: search.q || "",
           type: search.type,
           category: search.category,
           subcategory: search.subcategory,
@@ -221,9 +228,9 @@ function SearchPage() {
 
   // Track search analytics
   useEffect(() => {
-    if (search.q.trim() && !searchQuery.isLoading && searchQuery.data) {
+    if (search.q?.trim() && !searchQuery.isLoading && searchQuery.data) {
       void logSearchEvent({
-        query: search.q,
+        query: search.q.trim(),
         resultCount: totalCount,
       });
     }

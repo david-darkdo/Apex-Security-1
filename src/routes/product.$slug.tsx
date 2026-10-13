@@ -399,7 +399,7 @@ function ProductPage() {
     name: product.name,
     image: formattedImages,
     description:
-      product.seo_description || product.generated_description || product.short_description || `${product.name} - High-security architectural solution by Apex Security Ltd Abuja.`,
+      product.short_description || product.seo_description || `${product.name} — product details and availability from Apex Security, Abuja, Nigeria.`,
     sku: product.code || product.id,
     mpn: product.code || product.id,
     brand: {

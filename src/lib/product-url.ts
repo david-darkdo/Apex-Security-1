@@ -4,15 +4,20 @@ import { getProductionOrigin } from "./origin";
 export interface MinimumProductInfo {
   id?: string | null;
   slug?: string | null;
+  canonical_slug?: string | null;
   name?: string | null;
 }
 
 /**
  * Returns the single authoritative normalized slug for a product.
- * Prefers product.slug if present, otherwise slugifies product.name, fallback to product.id.
+ * Prefers the database canonical_slug, then the legacy route slug, then the product name.
  */
 export function getCanonicalProductSlug(product: MinimumProductInfo | null | undefined): string {
   if (!product) return "";
+  if (product.canonical_slug) {
+    const clean = slugify(product.canonical_slug);
+    if (clean) return clean;
+  }
   if (product.slug) {
     const clean = slugify(product.slug);
     if (clean) return clean;

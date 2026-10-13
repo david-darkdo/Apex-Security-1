@@ -274,7 +274,7 @@ export async function fetchProductBySlug(slug: string) {
   const { data, error } = await applyPublicFilters(
     supabase.from("products").select("*"),
   )
-    .eq("slug", slug)
+    .or(`slug.eq.${slug},canonical_slug.eq.${slug}`)
     .maybeSingle();
   if (error) throw error;
   return data;

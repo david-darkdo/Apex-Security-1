@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type ProductRow = {
   id: string;
   slug: string;
+  canonical_slug?: string | null;
   name: string;
   code: string;
   price: number;
@@ -33,7 +34,7 @@ export type ProductRow = {
 export type TaxonomyNode = { id: string; name: string; slug: string };
 
 const PRODUCT_FIELDS =
-  "id,slug,name,code,price,original_price,pricing_unit,differentiator_type,differentiator_note,brand,image_url,generated_studio_image,generated_installed_image,short_description,family_id,type_id,category_id,subcategory_id,color,material,finish,app_keywords,white_image_background,featured_feed,featured_homepage,created_at";
+  "id,slug,canonical_slug,name,code,price,original_price,pricing_unit,differentiator_type,differentiator_note,brand,image_url,generated_studio_image,generated_installed_image,short_description,family_id,type_id,category_id,subcategory_id,color,material,finish,app_keywords,white_image_background,featured_feed,featured_homepage,created_at";
 
 export type FeedHeroItem = {
   id: string;
@@ -274,7 +275,7 @@ export async function fetchProductBySlug(slug: string) {
   const { data, error } = await applyPublicFilters(
     supabase.from("products").select("*"),
   )
-    .eq("slug", slug)
+    .or(`slug.eq.${slug},canonical_slug.eq.${slug}`)
     .maybeSingle();
   if (error) throw error;
   return data;

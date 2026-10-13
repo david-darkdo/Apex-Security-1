@@ -37,8 +37,8 @@ const hierarchyQuery = (splat: string, origin: string) =>
         if (lastPartSlug) {
           const { data: matchedProduct } = await supabase
             .from("products")
-            .select("id, slug, name")
-            .or(`slug.eq.${lastPartSlug},slug.eq.${parts[parts.length - 1]}`)
+            .select("id, slug, canonical_slug, name")
+            .or(`slug.eq.${lastPartSlug},canonical_slug.eq.${lastPartSlug},slug.eq.${parts[parts.length - 1]},canonical_slug.eq.${parts[parts.length - 1]}`)
             .eq("status", "published")
             .eq("hidden", false)
             .is("deleted_at", null)
@@ -233,16 +233,16 @@ export const Route = createFileRoute("/$")({
 
     if (family) {
       title = `${family.name} Collection — Premium ${category.name} | Apex Security`;
-      description = `Explore the ${family.name} collection of premium ${category.name} ${type.name} at Apex Security. View available specs, models, and finishes.`;
+      description = `Explore ${family.name} ${category.name.toLowerCase()} products from Apex Security. Compare listed models, materials, finishes and product details in Abuja, Nigeria.`;
     } else if (subcategory) {
       title = `Security ${subcategory.name} ${category.name} ${type.name} | Apex Security`;
-      description = `Browse our catalog of premium ${subcategory.name} ${category.name} ${type.name} curated by Apex Security.`;
+      description = `Browse ${subcategory.name} ${category.name.toLowerCase()} products at Apex Security. Review available models and listed product details in Abuja, Nigeria.`;
     } else if (category) {
       title = `Premium ${category.name} ${type.name} | Apex Security`;
-      description = `Discover high-performance ${category.name} ${type.name} and security solutions at Apex Security.`;
+      description = `Explore ${category.name} ${type.name.toLowerCase()} from Apex Security. Compare available products, specifications and designs for homes and businesses in Nigeria.`;
     } else {
       title = `${type.name} Catalog | Apex Security`;
-      description = `Curated ${type.name} solutions. Discover CCTV surveillance, smart biometric locks, security doors, and electronic security at Apex Security.`;
+      description = `Browse the Apex Security ${type.name.toLowerCase()} catalogue. Explore listed products, specifications and available designs for residential and commercial projects in Nigeria.`;
     }
 
     const firstImage = loaderData.products[0]?.generated_studio_image || loaderData.products[0]?.image_url || "";
@@ -348,7 +348,7 @@ function HierarchyLandingPage() {
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {family?.custom_ai_prompt_override ||
-              `Browse our catalog of premium ${type.name.toLowerCase()} solutions. Apex Security curates state-of-the-art security electronics and door systems for residential and commercial projects.`}
+              `Explore ${family?.name || subcategory?.name || category?.name || type.name} products in the ${type.name.toLowerCase()} catalogue. Review the listed models and product details from Apex Security.`}
           </p>
         </div>
 

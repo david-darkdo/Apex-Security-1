@@ -393,79 +393,40 @@ function ProductPage() {
     ? rawImages.map(img => img.startsWith("http") ? img : `${origin}${img.startsWith("/") ? img : `/${img}`}`)
     : [`${origin}/apex-logo.png`];
 
+  const hasValidPrice = product.price != null && Number(product.price) > 0;
+  const hasKnownStock = product.stock_quantity != null && Number.isFinite(Number(product.stock_quantity));
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: formattedImages,
-    description:
-      product.seo_description || product.generated_description || product.short_description || `${product.name} - High-security architectural solution by Apex Security Ltd Abuja.`,
+    ...(formattedImages.length > 0 ? { image: formattedImages } : {}),
+    description: product.short_description || product.seo_description || product.name,
     sku: product.code || product.id,
-    mpn: product.code || product.id,
-    brand: {
-      "@type": "Brand",
-      name: product.brand || "Apex Security",
-    },
+    mpn: product.code || undefined,
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     material: product.material || undefined,
     color: product.color || undefined,
     category: taxonomy.subcategory?.name
       ? `${taxonomy.category?.name || "Security"} > ${taxonomy.subcategory.name}`
       : taxonomy.category?.name || "Security",
-    offers: {
-      "@type": "Offer",
-      url: canonicalProductUrl,
-      priceCurrency: "NGN",
-      price: product.price ? Number(product.price).toFixed(2) : "0.00",
-      priceValidUntil: "2027-12-31",
-      availability: "https://schema.org/InStock",
-      itemCondition: "https://schema.org/NewCondition",
-      hasMerchantReturnPolicy: {
-        "@type": "MerchantReturnPolicy",
-        applicableCountry: "NG",
-        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 7,
-        returnMethod: "https://schema.org/ReturnInStore",
-        returnFees: "https://schema.org/FreeReturn",
-      },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: {
-          "@type": "MonetaryAmount",
-          value: "0.00",
-          currency: "NGN",
-        },
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: "NG",
-        },
-        deliveryTime: {
-          "@type": "ShippingDeliveryTime",
-          handlingTime: {
-            "@type": "QuantitativeValue",
-            minValue: 1,
-            maxValue: 3,
-            unitCode: "DAY",
-          },
-          transitTime: {
-            "@type": "QuantitativeValue",
-            minValue: 1,
-            maxValue: 5,
-            unitCode: "DAY",
-          },
-        },
-      },
-      priceSpecification: {
-        "@type": "UnitPriceSpecification",
-        price: product.price ? Number(product.price).toFixed(2) : "0.00",
+    ...(hasValidPrice ? {
+      offers: {
+        "@type": "Offer",
+        url: canonicalProductUrl,
         priceCurrency: "NGN",
-        unitText: (product as any).pricing_unit || "piece",
+        price: Number(product.price).toFixed(2),
+        ...(hasKnownStock ? {
+          availability: Number(product.stock_quantity) > 0
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        } : {}),
+        seller: {
+          "@type": "Organization",
+          name: "Apex Security Ltd",
+          url: origin,
+        },
       },
-      seller: {
-        "@type": "Organization",
-        name: "Apex Security Ltd",
-        url: origin,
-      },
-    },
+    } : {}),
   };
 
   const faqList =

@@ -24,7 +24,7 @@ export const Route = createFileRoute("/sitemap-images.xml")({
         try {
           const { data: products } = await supabase
             .from("products" as any)
-            .select("id, slug, name, alt_text, seo_description, image_url, generated_installed_image, generated_studio_image")
+            .select("id, slug, canonical_slug, name, alt_text, seo_description, image_url, generated_installed_image, generated_studio_image")
             .eq("status", "published")
             .eq("hidden", false)
             .is("deleted_at", null);

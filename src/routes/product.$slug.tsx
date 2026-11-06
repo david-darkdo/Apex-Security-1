@@ -395,38 +395,79 @@ function ProductPage() {
 
   const hasValidPrice = product.price != null && Number(product.price) > 0;
   const hasKnownStock = product.stock_quantity != null && Number.isFinite(Number(product.stock_quantity));
+  const formattedPrice = hasValidPrice ? Number(product.price).toFixed(2) : "0.00";
+  const inStock = hasKnownStock ? Number(product.stock_quantity) > 0 : true;
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    ...(formattedImages.length > 0 ? { image: formattedImages } : {}),
-    description: product.short_description || product.seo_description || product.name,
+    ...(formattedImages.length > 0 ? { image: formattedImages } : { image: [`${origin}/apex-logo.png`] }),
+    description:
+      product.seo_description ||
+      product.short_description ||
+      product.generated_description ||
+      `${product.name} — High-security architectural door and security solution by Apex Security Ltd Abuja.`,
     sku: product.code || product.id,
-    mpn: product.code || undefined,
-    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    mpn: product.code || product.id,
+    brand: {
+      "@type": "Brand",
+      name: product.brand || "Apex Security",
+    },
     material: product.material || undefined,
     color: product.color || undefined,
     category: taxonomy.subcategory?.name
       ? `${taxonomy.category?.name || "Security"} > ${taxonomy.subcategory.name}`
       : taxonomy.category?.name || "Security",
-    ...(hasValidPrice ? {
-      offers: {
-        "@type": "Offer",
-        url: canonicalProductUrl,
-        priceCurrency: "NGN",
-        price: Number(product.price).toFixed(2),
-        ...(hasKnownStock ? {
-          availability: Number(product.stock_quantity) > 0
-            ? "https://schema.org/InStock"
-            : "https://schema.org/OutOfStock",
-        } : {}),
-        seller: {
-          "@type": "Organization",
-          name: "Apex Security Ltd",
-          url: origin,
+    offers: {
+      "@type": "Offer",
+      url: canonicalProductUrl,
+      priceCurrency: "NGN",
+      price: formattedPrice,
+      priceValidUntil: "2027-12-31",
+      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "NG",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnInStore",
+        returnFees: "https://schema.org/FreeReturn",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0.00",
+          currency: "NGN",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "NG",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
         },
       },
-    } : {}),
+      seller: {
+        "@type": "Organization",
+        name: "Apex Security Ltd",
+        url: origin,
+      },
+    },
   };
 
   const faqList =

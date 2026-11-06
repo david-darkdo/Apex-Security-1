@@ -425,7 +425,7 @@ function ProductPage() {
       priceCurrency: "NGN",
       price: formattedPrice,
       priceValidUntil: "2027-12-31",
-      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
